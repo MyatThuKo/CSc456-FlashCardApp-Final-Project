@@ -1,10 +1,13 @@
 import SwiftUI
 
+// store some color values for later
 let LightBlue = Color(red: 176.0/255.0, green: 224.0/255.0, blue: 230.0/255.0, opacity: 1.0)
 let DarkBlue = Color(red: 24.0/255.0, green: 24.0/255.0, blue: 35.0/255.0, opacity: 1.0)
 let RobinBlue = Color(red: 93.0/255.0, green: 204.0/255.0, blue: 197.0/255.0, opacity: 1.0)
 
 struct ContentView: View {
+        
+        //varibles to store email/pw strings
         @State var email: String = ""
         @State var password: String = ""
          
@@ -13,11 +16,13 @@ struct ContentView: View {
         var body: some View {
             NavigationView {
                 VStack {
+                    //display landing logo
                     Image("LandingLogo")
                         .resizable()
                         .scaledToFit()
                         .padding(.bottom, 75)
-                     
+                    
+                    //email field
                     Text("Email").foregroundColor(Color.white).multilineTextAlignment(.leading)
                     TextField("you@your-domain.com", text: $email)
                         .padding()
@@ -26,6 +31,7 @@ struct ContentView: View {
                         .padding(.bottom, 20)
                         .shadow(radius: 5)
                     
+                    //password field
                     Text("Password").foregroundColor(Color.white).multilineTextAlignment(.leading)
                     SecureField("*********", text: $password)
                         .padding()
@@ -34,8 +40,7 @@ struct ContentView: View {
                         .padding(.bottom, 20)
                         .shadow(radius: 5)
                     
-                    
-                     
+                    //login button
                     Button(action: {}) {
                         Text("Login")
                             .font(.headline)
@@ -47,7 +52,7 @@ struct ContentView: View {
                             .shadow(radius: 5)
                     }
                     
-                     
+                   //link to registration form for new users
                    VStack {
                        Text("New user?").foregroundColor(Color.white)
                        NavigationLink(destination: ContentViewRegister().navigationBarBackButtonHidden(true)) {
@@ -68,6 +73,7 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
+//contentview for registration screen
 struct ContentViewRegister : View {
      
     @State private var email = ""
@@ -78,11 +84,14 @@ struct ContentViewRegister : View {
     var body: some View {
         NavigationView {
             VStack {
+                    
+                //display landing logo
                 Image("LandingLogo")
                     .resizable()
                     .scaledToFit()
                     .padding(.bottom, 75)
                  
+                //email field
                 Text("Email").foregroundColor(Color.white).multilineTextAlignment(.leading)
                 TextField("you@your-domain.com", text: $email)
                     .padding()
@@ -91,6 +100,8 @@ struct ContentViewRegister : View {
                     .padding(.bottom, 20)
                     .shadow(radius: 5)
                 
+                    
+                //password field
                 Text("Password").foregroundColor(Color.white).multilineTextAlignment(.leading)
                 SecureField("*********", text: $password)
                     .padding()
@@ -99,6 +110,7 @@ struct ContentViewRegister : View {
                     .padding(.bottom, 20)
                     .shadow(radius: 5)
                 
+                //confirm password field
                 Text("Confirm Password").foregroundColor(Color.white).multilineTextAlignment(.leading)
                 SecureField("*********", text: $confirmPassword)
                     .padding()
@@ -107,6 +119,7 @@ struct ContentViewRegister : View {
                     .padding(.bottom, 20)
                     .shadow(radius: 5)
                 
+                //register button
                 Button(action: {}) {
                     Text("Register")
                         .font(.headline)
@@ -118,7 +131,7 @@ struct ContentViewRegister : View {
                         .shadow(radius: 5)
                 }
                 
-                 
+               //link to login screen for existing users
                VStack {
                    Text("Existing user?").foregroundColor(Color.white)
                     NavigationLink(destination: ContentView().navigationBarBackButtonHidden(true)) {
