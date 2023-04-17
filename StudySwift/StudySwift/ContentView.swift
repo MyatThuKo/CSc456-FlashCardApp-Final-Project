@@ -1,3 +1,10 @@
+//
+//  ContentView.swift
+//  StudySwift
+//
+//  Created by Myat Thu Ko on 4/12/23.
+//
+
 import SwiftUI
 
 // store some color values for later
