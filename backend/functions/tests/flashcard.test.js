@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const path = require("path");
 
 const admin = require("firebase-admin");
@@ -8,10 +9,11 @@ const fft = require("firebase-functions-test")(
 
 // Testing https.onCall function
 
-describe("addFlashcardSet", () => {
+describe("Testing Flashcard Set Functions", () => {
   let myFunctions;
   let user;
   const docsToDelete = [];
+  // let flashcardId;
 
   beforeAll(async () => {
     myFunctions = require("../index");
@@ -33,280 +35,272 @@ describe("addFlashcardSet", () => {
     fft.cleanup(); // Do cleanup tasks
   });
 
-  test("write doc to /flashcards & update doc in /users", async () => {
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+  //* **************** Test addFlashcardSet ******************* */
+  describe("addFlashcardSet", () => {
+    test("write doc to /flashcards & update doc in /users", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
 
-    const data = {
-      title: "Presidents",
-      category: "History",
-      cards: [
-        {question: "1st president of the US", answer: "George Washington"},
-      ],
-    };
-    const context = {auth: {uid: user.uid}};
+      const data = {
+        title: "Presidents",
+        category: "History",
+        cards: [
+          {question: "1st president of the US", answer: "George Washington"},
+        ],
+      };
+      const context = {auth: {uid: user.uid}};
 
-    const res = await addFlashcardSet(data, context);
-    docsToDelete.push(res.flashcardId); // For cleanup
+      const res = await addFlashcardSet(data, context);
+      docsToDelete.push(res.flashcardId); // For cleanup
 
-    // Validate response from adding flashcard set
-    expect(res.title).toBe(data.title);
-    expect(res.category).toBe(data.category);
-    expect(res.cards.length).toBe(1);
-    expect(res.creatorId).toBe(context.auth.uid);
-    expect(res.timestamp).toBeTruthy();
+      // Validate response from adding flashcard set
+      expect(res.title).toBe(data.title);
+      expect(res.category).toBe(data.category);
+      expect(res.cards.length).toBe(1);
+      expect(res.creatorId).toBe(context.auth.uid);
+      expect(res.timestamp).toBeTruthy();
 
-    // Validate reference to flashcard set is on "user" document
-    const snapshot = await admin
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .get();
+      // Validate reference to flashcard set is on "user" document
+      const snapshot = await admin
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
 
-    expect(snapshot.exists).toBeTruthy();
-    const createdFlashcard = snapshot.data().created_flashcards.find((obj) => {
-      return obj.flashcardId === res.flashcardId;
+      expect(snapshot.exists).toBeTruthy();
+
+      const createdFlashcard = snapshot.data().created_flashcards.find((obj) => {
+        return obj.flashcardId === res.flashcardId;
+      });
+      expect(createdFlashcard).toBeTruthy();
+      expect(createdFlashcard.title).toEqual(data.title);
+      expect(createdFlashcard.category).toEqual(data.category);
     });
-    expect(createdFlashcard).toBeTruthy();
-    expect(createdFlashcard.title).toEqual(data.title);
-    expect(createdFlashcard.category).toEqual(data.category);
-  });
 
-  test("throws error if not authenticated", async () => {
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
-    await expect(addFlashcardSet({}, {})).rejects.toEqual(
-        new Error("You must be authenticated to create a flashcard set."),
-    );
-  });
-
-  test("throws error if missing fields", async () => {
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
-    const context = {auth: {uid: user.uid}};
-    const cases = [
-      ["title", {}],
-      ["category", {title: "title"}],
-      ["cards", {title: "title", category: "category"}],
-    ];
-
-    for (const testVal of cases) {
-      await expect(addFlashcardSet(testVal[1], context)).rejects.toEqual(
-          new Error(`The "${testVal[0]}" field must be provided.`),
+    test("throws error if not authenticated", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      await expect(addFlashcardSet({}, {})).rejects.toEqual(
+          new Error("You must be authenticated to create a flashcard set."),
       );
-    }
-  });
+    });
 
-  test("throws error if title & category fails pre-condition", async () => {
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
-    const data = {
-      title: "Lorem ipsum dolor sit amet, con",
-      category: "category",
-      cards: [],
-    };
-    const context = {auth: {uid: user.uid}};
+    test("throws error if missing fields", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      const context = {auth: {uid: user.uid}};
+      const cases = [
+        ["title", {}],
+        ["category", {title: "title"}],
+        ["cards", {title: "title", category: "category"}],
+      ];
 
-    await expect(addFlashcardSet(data, context)).rejects.toEqual(
-        new Error(
-            "The \"title\" field must be a string between 1-30 characters.",
-        ),
-    );
-    data.title = "title";
-    data.category = "Lorem ipsum dolor sit amet, con";
-    await expect(addFlashcardSet(data, context)).rejects.toEqual(
-        new Error(
-            "The \"category\" field must be a string between 1-30 characters.",
-        ),
-    );
-  });
+      for (const testVal of cases) {
+        await expect(addFlashcardSet(testVal[1], context)).rejects.toEqual(
+            new Error(`The "${testVal[0]}" field must be provided.`),
+        );
+      }
+    });
 
-  test("throws error if cards fail pre-condition", async () => {
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
-    const data = {
-      title: "title",
-      category: "category",
-      cards: [{}],
-    };
-    const context = {auth: {uid: user.uid}};
-    const cases = [
-      [],
-      [{}],
-      [{question: ""}],
-      [{question: "", answer: ""}],
-      [{question: "question", answer: ""}],
-      [{question: "", answer: "answer"}],
-    ];
+    test("throws error if title & category fails pre-condition", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      const data = {
+        title: "Lorem ipsum dolor sit amet, con",
+        category: "category",
+        cards: [],
+      };
+      const context = {auth: {uid: user.uid}};
 
-    for (const testVal of cases) {
-      data.cards = testVal;
       await expect(addFlashcardSet(data, context)).rejects.toEqual(
           new Error(
-              "The \"cards\" field must be a non-empty array of objects with" +
-              " keys \"question\" and \"answer\" with non-empty string values.",
+              "The \"title\" field must be a string between 1-30 characters.",
           ),
       );
-    }
-  });
-});
-
-/*
-describe("updateFlashcardSet", () => {
-  let myFunctions;
-  let user;
-  // let flashcardId;
-  const docsToDelete = [];
-
-  beforeAll(async () => {
-    myFunctions = require("../index");
-
-    // Create a test user
-    user = fft.auth.exampleUserRecord();
-    user.uid = "test-id-3";
-    user.email = "testuser3@gmail.com";
-    const newUserSignup = fft.wrap(myFunctions.newUserSignup);
-    await newUserSignup(user);
-  });
-
-  afterAll(async () => {
-    await admin.firestore().collection("users").doc(user.uid).delete();
-    const deletePromises = docsToDelete.map((docId) =>
-      admin.firestore().collection("flashcards").doc(docId).delete(),
-    );
-    await Promise.all(deletePromises);
-    fft.cleanup();
-  });
-
-  test("update doc in /flascards and /users", async () => {
-    const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-    const data = {
-      title: "Updated Flaschard Set Title",
-      category: "Updated category",
-      cards: [
-        {question: "Updated Question 1", answer: "Updated Answer 1"},
-        {question: "Updated Question 2", answer: "Updated Answer 2"},
-        {question: "New Question ", answer: "New Answer"},
-      ],
-    };
-    const context = {auth: {uid: user.uid}};
-
-    // Create a test flashcard set
-    const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
-    const addData = {
-      title: "Test Flashcard Set",
-      category: "Test Category",
-      cards: [
-        {question: "Test Question 1", answer: "Test Answer 1"},
-        {question: "Test Question 2", answer: "Test Answer 2"},
-      ],
-    };
-
-    const addRes = await addFlashcardSet(addData, context);
-    docsToDelete.push(addRes.flashcardId);
-
-    const res = await updateFlashcardSet(
-        {flashcardId: addRes.flashcardId, ...data},
-        context,
-    );
-
-    // Validate response from updating flashcard set
-    expect(res.flashcardId).toEqual(addRes.flashcardId);
-    expect(res.title).toEqual(data.title);
-    expect(res.category).toEqual(data.category);
-    expect(res.cards.length).toEqual(3);
-    expect(res.cards[0].question).toEqual(data.cards[0].question);
-    expect(res.cards[0].answer).toEqual(data.cards[0].answer);
-    expect(res.cards[1].question).toEqual(data.cards[1].question);
-    expect(res.cards[1].answer).toEqual(data.cards[1].answer);
-    expect(res.cards[2].question).toEqual(data.cards[2].question);
-    expect(res.cards[2].answer).toEqual(data.cards[2].answer);
-    expect(res.creatorId).toEqual(context.auth.uid);
-    expect(res.timestamp).toBeTruthy();
-
-    // Validate reference to updated flashcard set is on "user" document
-    const snapshot = await admin
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .get();
-    expect(snapshot.exists).toBeTruthy();
-    const createdFlashcard = snapshot.data().created_flashcards.find(
-        (obj) => obj.flashcardId = res.flashcardId,
-    );
-    expect(createdFlashcard).toBeTruthy();
-    expect(createdFlashcard.title).toEqual(data.title);
-    expect(createdFlashcard.category).toEqual(data.category);
-  });
-
-  test("throws error if not authenticated", async () => {
-    const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-    await expect(updateFlashcardSet({}, {})).rejects.toEqual(
-        new Error("You must be authenticated to update a flashcard set."),
-    );
-  });
-
-  test("throws error if missing fields", async () => {
-    const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-    const context = {auth: {uid: user.uid}};
-    const cases = [
-      ["flashcardId", {}],
-      ["title", {}],
-      ["category", {title: "title"}],
-      ["cards", {title: "title", category: "category"}],
-    ];
-
-    for (const testVal of cases) {
-      await expect(updateFlashcardSet(testVal[1], context)).rejects.toEqual(
-          new Error(`The "${testVal[0]}" field must be provided.`),
+      data.title = "title";
+      data.category = "Lorem ipsum dolor sit amet, con";
+      await expect(addFlashcardSet(data, context)).rejects.toEqual(
+          new Error(
+              "The \"category\" field must be a string between 1-30 characters.",
+          ),
       );
-    }
+    });
+
+    test("throws error if cards fail pre-condition", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      const data = {
+        title: "title",
+        category: "category",
+        cards: [{}],
+      };
+      const context = {auth: {uid: user.uid}};
+      const cases = [
+        [],
+        [{}],
+        [{question: ""}],
+        [{question: "", answer: ""}],
+        [{question: "question", answer: ""}],
+        [{question: "", answer: "answer"}],
+      ];
+
+      for (const testVal of cases) {
+        data.cards = testVal;
+        await expect(addFlashcardSet(data, context)).rejects.toEqual(
+            new Error(
+                "The \"cards\" field must be a non-empty array of objects with" +
+                " keys \"question\" and \"answer\" with non-empty string values.",
+            ),
+        );
+      }
+    });
   });
 
-  test("throws error if title & category fails pre-condition", async () => {
-    const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-    const data = {
-      title: "Lorem ipsum dolor sit amet, con",
-      category: "category",
-      cards: [],
-    };
-    const context = {auth: {uid: user.uid}};
+  //* **************** Test updateFlashcardSet ******************* */
+  describe("updateFlashcardSet", () => {
+    test("update doc in /flascards and /users", async () => {
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      const data = {
+        title: "Updated Flaschard Set Title",
+        category: "Updated category",
+        cards: [
+          {question: "Updated Question 1", answer: "Updated Answer 1"},
+          {question: "Updated Question 2", answer: "Updated Answer 2"},
+          {question: "New Question ", answer: "New Answer"},
+        ],
+      };
+      const context = {auth: {uid: user.uid}};
 
-    await expect(updateFlashcardSet(data, context)).rejects.toEqual(
-        new Error(
-            "The \"title\" field must be a string between 1-30 characters.",
-        ),
-    );
-    data.title = "title";
-    data.category = "Lorem ipsum dolor sit amet, con";
-    await expect(updateFlashcardSet(data, context)).rejects.toEqual(
-        new Error(
-            "The \"category\" field must be a string between 1-30 characters.",
-        ),
-    );
-  });
+      // Create a test flashcard set
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      const addData = {
+        title: "Test Flashcard Set",
+        category: "Test Category",
+        cards: [
+          {question: "Test Question 1", answer: "Test Answer 1"},
+          {question: "Test Question 2", answer: "Test Answer 2"},
+        ],
+      };
 
-  test("throws error if cards fail pre-condition", async () => {
-    const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-    const data = {
-      title: "title",
-      category: "category",
-      cards: [{}],
-    };
-    const context = {auth: {uid: user.uid}};
-    const cases = [
-      [],
-      [{}],
-      [{question: ""}],
-      [{question: "", answer: ""}],
-      [{question: "question", answer: ""}],
-      [{question: "", answer: "answer"}],
-    ];
+      const addRes = await addFlashcardSet(addData, context);
+      docsToDelete.push(addRes.flashcardId);
 
-    for (const testVal of cases) {
-      data.cards = testVal;
+      // Validate reference to flashcard set is on "user" document
+      const addSnapshot = await admin
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+
+      expect(addSnapshot.exists).toBeTruthy();
+
+      const addCreatedFlashcard = addSnapshot.data().created_flashcards.find((obj) => {
+        return obj.flashcardId === addRes.flashcardId;
+      });
+
+      expect(addCreatedFlashcard.flashcardId).toBeTruthy();
+      const res = await updateFlashcardSet(
+          {flashcardId: addCreatedFlashcard.flashcardId, ...data},
+          context,
+      );
+
+      // Validate response from updating flashcard set
+      expect(res.flashcardId).toEqual(addRes.flashcardId);
+      expect(res.title).toEqual(data.title);
+      expect(res.category).toEqual(data.category);
+      expect(res.cards.length).toEqual(3);
+      expect(res.cards[0].question).toEqual(data.cards[0].question);
+      expect(res.cards[0].answer).toEqual(data.cards[0].answer);
+      expect(res.cards[1].question).toEqual(data.cards[1].question);
+      expect(res.cards[1].answer).toEqual(data.cards[1].answer);
+      expect(res.cards[2].question).toEqual(data.cards[2].question);
+      expect(res.cards[2].answer).toEqual(data.cards[2].answer);
+      expect(res.creatorId).toEqual(context.auth.uid);
+      expect(res.timestamp).toBeTruthy();
+
+      // Validate reference to updated flashcard set is on "user" document
+      const snapshot = await admin
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+      expect(snapshot.exists).toBeTruthy();
+      const createdFlashcard = snapshot.data().created_flashcards.find(
+          (obj) => obj.flashcardId = res.flashcardId,
+      );
+      expect(createdFlashcard).toBeTruthy();
+      expect(createdFlashcard.title).toEqual(data.title);
+      expect(createdFlashcard.category).toEqual(data.category);
+    });
+
+    test("throws error if not authenticated", async () => {
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      await expect(updateFlashcardSet({}, {})).rejects.toEqual(
+          new Error("You must be authenticated to update a flashcard set."),
+      );
+    });
+
+    test("throws error if missing fields", async () => {
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      const context = {auth: {uid: user.uid}};
+      const cases = [
+        ["flashcardId", {}],
+        ["title", {}],
+        ["category", {title: "title"}],
+        ["cards", {title: "title", category: "category"}],
+      ];
+
+      for (const testVal of cases) {
+        await expect(updateFlashcardSet(testVal[1], context)).rejects.toEqual(
+            new Error(`The "${testVal[0]}" field must be provided.`),
+        );
+      }
+    });
+
+    test("throws error if title & category fails pre-condition", async () => {
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      const data = {
+        title: "Lorem ipsum dolor sit amet, con",
+        category: "category",
+        cards: [],
+      };
+      const context = {auth: {uid: user.uid}};
+
       await expect(updateFlashcardSet(data, context)).rejects.toEqual(
           new Error(
-              "The \"cards\" field must be a non-empty array of objects with" +
-              " keys \"question\" and \"answer\" with non-empty string values.",
+              "The \"title\" field must be a string between 1-30 characters.",
           ),
       );
-    }
+      data.title = "title";
+      data.category = "Lorem ipsum dolor sit amet, con";
+      await expect(updateFlashcardSet(data, context)).rejects.toEqual(
+          new Error(
+              "The \"category\" field must be a string between 1-30 characters.",
+          ),
+      );
+    });
+
+    test("throws error if cards fail pre-condition", async () => {
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      const data = {
+        title: "title",
+        category: "category",
+        cards: [{}],
+      };
+      const context = {auth: {uid: user.uid}};
+      const cases = [
+        [],
+        [{}],
+        [{question: ""}],
+        [{question: "", answer: ""}],
+        [{question: "question", answer: ""}],
+        [{question: "", answer: "answer"}],
+      ];
+
+      for (const testVal of cases) {
+        data.cards = testVal;
+        await expect(updateFlashcardSet(data, context)).rejects.toEqual(
+            new Error(
+                "The \"cards\" field must be a non-empty array of objects with" +
+                " keys \"question\" and \"answer\" with non-empty string values.",
+            ),
+        );
+      }
+    });
   });
 });
-*/
