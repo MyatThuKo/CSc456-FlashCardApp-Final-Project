@@ -14,10 +14,12 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 const {
   addFlashcardSet,
   updateFlashcardSet,
+  deleteFlashcardSet,
 } = require("./src/controllers/flashcard");
 
 exports.addFlashcardSet = addFlashcardSet;
 exports.updateFlashcardSet = updateFlashcardSet;
+exports.deleteFlashcardSet = deleteFlashcardSet;
 
 
 const {newUserSignup} = require("./src/controllers/user");

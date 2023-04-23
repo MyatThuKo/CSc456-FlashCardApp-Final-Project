@@ -183,3 +183,44 @@ exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("unknown", err.message, err);
   }
 });
+
+/**
+ * cloud function to delete a flashcard set.
+
+  Expected input:
+    - "flashcardId"
+*/
+exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    const errMsg = "You must be authenticated to delete a flashcard set.";
+    throw new functions.https.HttpsError("unauthenticated", errMsg);
+  }
+
+  // Make sure required fields are provided
+  const flashcardId = data.flashcardId;
+  if (!flashcardId) {
+    const errMsg = `The "flashcardId" field must be provided.`;
+    throw new functions.https.HttpsError("invalid-argument", errMsg);
+  }
+
+  try {
+    // Delete the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId === context.auth.uid) return docRef.delete();
+    });
+
+    // Remove the reference to the flashcard set in the "users" database
+    const user = admin.firestore().collection("users").doc(context.auth.uid);
+    const userDoc = await user.get();
+    let createdFcs = userDoc.data().created_flashcards;
+    createdFcs = createdFcs.filter((fc) => fc.flashcardId !== flashcardId);
+    await user.update({created_flashcards: createdFcs});
+    // Return the id of the flashcard set that was "deleted" to the client
+    return {flashcardId};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});

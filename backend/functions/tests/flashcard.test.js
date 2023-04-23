@@ -287,4 +287,83 @@ describe("Testing Flashcard Set Functions", () => {
     });
   });
   functions.logger.info("Test updateFlashcardSet was succesfull");
+
+  //* **************** Test deleteFlashcardSet ******************* */
+  describe("deleteFlashcardSet", () => {
+    test("delete doc in /flashcards", async () => {
+      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+      const data = {
+        title: "Test Set",
+        category: "Test",
+        cards: [{question: "Q1", answer: "A1"}],
+      };
+      const context = {auth: {uid: user.uid}};
+
+      const res = await addFlashcardSet(data, context);
+      const fcId = res.flashcardId;
+      docsToDelete.push(fcId); // For cleanup
+
+      // Validate response from adding flashcard set
+      expect(fcId).toBeTruthy();
+      expect(res.timestamp).toBeTruthy();
+      expect(res.creatorId).toBe(context.auth.uid);
+      for (const [key, value] of Object.entries(data)) {
+        expect(data[key]).toBe(value);
+      }
+
+      // Delete Flashcard
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      await deleteFlashcardSet({flashcardId: fcId}, context);
+
+      // Valdiate flashcard set has been deleted
+      const doc = await admin.firestore().collection("flashcards").doc(fcId).get();
+      console.log(doc.data());
+      expect(doc.exists).not.toBeTruthy();
+
+      // Validate reference to flashcard set ISN'T on "user" document
+      const snapshot = await admin
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+      expect(snapshot.exists).toBeTruthy();
+      const flashcard = snapshot.data().created_flashcards.find((obj) => {
+        return obj.flashcardId === res.flashcardId;
+      });
+      expect(flashcard).not.toBeTruthy();
+    });
+  });
+
+  test("throws error if not authenticated", async () => {
+    const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+    await expect(deleteFlashcardSet({}, {})).rejects.toEqual(
+        new Error("You must be authenticated to delete a flashcard set."),
+    );
+  });
+
+  test("silently handles case of deleting unowned flashcard set", async () => {
+    // Create a test flashcard set for error cases
+    const data = {
+      creatorId: "fake-uuid",
+      title: "Unowned",
+      category: "Test",
+      timestamp: Date.now(),
+      cards: [{question: "Q", answer: "A"}],
+    };
+    const docRef = await admin.firestore().collection("flashcards").add(data);
+    docsToDelete.push(docRef.id); // For cleanup
+
+    const context = {auth: {uid: user.uid}};
+    // Attempt to delete flashcard set [will not be deleted]
+    const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+    await deleteFlashcardSet({flashcardId: docRef.id}, context);
+
+    // Validate flashcard set still exists
+    const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
+    expect(doc.exists).toBeTruthy();
+    for (const [key, value] of Object.entries(data)) {
+      expect(data[key]).toBe(value);
+    }
+  });
+  functions.logger.info("Test deleteFlashcardSet was succesfull");
 });
