@@ -223,3 +223,41 @@ exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("unknown", err.message, err);
   }
 });
+
+/**
+ * cloud function to recover a flashcard set.
+
+  Expected input:
+    - "flashcardId"
+*/
+exports.recoverFlashcardSet = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    const errMsg = "You must be authenticated to recover a flashcard set.";
+    throw new functions.https.HttpsError("unauthenticated", errMsg);
+  }
+
+  // Make sure required fields are provided
+  const flashcardId = data.flashcardId;
+  if (!flashcardId) {
+    const errMsg = `The "flashcardId" field must be provided.`;
+    throw new functions.https.HttpsError("invalid-argument", errMsg);
+  }
+
+  try {
+    // Recover the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId !== context.auth.uid) {
+        const errMsg =
+          "You do not have permission to recover this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
+      }
+      return docRef.update({toBeDeleted: false});
+    });
+    return {flashcardId, message: "Flashcard set has been recovered."};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});
