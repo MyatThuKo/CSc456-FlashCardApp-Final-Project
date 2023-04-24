@@ -11,7 +11,7 @@ exports.isStrBetween = (str, min, max) => {
   }
 
   return (
-    typeof str == "string" &&
+    typeof str === "string" &&
     str.trim().length >= min &&
     str.trim().length <= max
   );
