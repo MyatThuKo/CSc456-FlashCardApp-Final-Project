@@ -146,13 +146,13 @@ exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
 
     let createdFlashcards = userDoc.data().created_flashcards;
     createdFlashcards = createdFlashcards.map((fc) => {
-      if (fc.flashcardId !== data.flashcardId) return fc;
-      return {...flashcardSetMetaData, flashcardId: data.flashcardId};
+      if (fc.flashcardId !== flashcardId) return fc;
+      return {...flashcardSetMetaData, flashcardId};
     });
 
     await user.update({created_flashcards: createdFlashcards});
     // Return the updated flashcard set to the client
-    return {...flashcardSet, flashcardId: data.flashcardId};
+    return {...flashcardSet, flashcardId};
   } catch (err) {
     // Re-throwing the error as an HttpsError so the client gets the
     // error details

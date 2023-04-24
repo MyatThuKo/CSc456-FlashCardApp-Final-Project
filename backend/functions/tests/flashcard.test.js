@@ -14,6 +14,14 @@ describe("Testing Flashcard Set Functions", () => {
   let user;
   const docsToDelete = [];
 
+  // Loops through the keys of object 1 and makes sure it exists & is equal
+  // to the value in the 2nd object
+  const matchObject =(refObj, obj2) => {
+    for (const [key, value] of Object.entries(refObj)) {
+      expect(obj2[key]).toEqual(value);
+    }
+  };
+
   beforeAll(async () => {
     myFunctions = require("../index");
 
@@ -52,10 +60,10 @@ describe("Testing Flashcard Set Functions", () => {
       docsToDelete.push(res.flashcardId); // For cleanup
 
       // Validate response from adding flashcard set
-      expect(res.title).toBe(data.title);
-      expect(res.category).toBe(data.category);
-      expect(res.cards.length).toBe(1);
+      expect(res.flashcardId).toBeTruthy();
       expect(res.timestamp).toBeTruthy();
+      expect(res.creatorId).toBe(context.auth.uid);
+      matchObject(data, res);
 
       // Validate reference to flashcard set is on "user" document
       const snapshot = await admin
@@ -63,13 +71,11 @@ describe("Testing Flashcard Set Functions", () => {
           .collection("users")
           .doc(user.uid)
           .get();
-
       expect(snapshot.exists).toBeTruthy();
 
       const createdFlashcard = snapshot.data().created_flashcards.find((obj) => {
         return obj.flashcardId === res.flashcardId;
       });
-
       expect(createdFlashcard).toBeTruthy();
       expect(createdFlashcard.title).toEqual(data.title);
       expect(createdFlashcard.category).toEqual(data.category);
@@ -188,11 +194,8 @@ describe("Testing Flashcard Set Functions", () => {
 
       // Validate response from updating flashcard set
       expect(res.flashcardId).toEqual(addRes.flashcardId);
-      expect(res.title).toEqual(data.title);
-      expect(res.category).toEqual(data.category);
-      expect(res.cards.length).toEqual(3);
-      expect(res.cards).toEqual(data.cards);
       expect(res.timestamp).toBeTruthy();
+      matchObject(data, res);
     });
 
     test("throws error if not authenticated", async () => {
