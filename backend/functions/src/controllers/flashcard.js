@@ -3,24 +3,18 @@ const admin = require("firebase-admin");
 
 const myUtils = require("../utils.js");
 
-/*
-  Cloud Function to create a flashcard set as an authenticated user.
-
-  Expected input:
-    - "title" <string (1-30 characters)>
-    - "category" <string (1-30 characters)>
-    - "cards" []
-      - "question" <string (1+ characters)>
-      - "answer" <string (1+ characters)>
-*/
-exports.addFlashcardSet = functions.https.onCall(async (data, context) => {
+// "cu" = Create & Update
+const cuValidation = (data, context, withId = false) => {
+  const word = withId ? "update" : "create";
   if (!context.auth) {
-    const errMsg = "You must be authenticated to create a flashcard set.";
+    const errMsg = `You must be authenticated to ${word} a flashcard set.`;
     throw new functions.https.HttpsError("unauthenticated", errMsg);
   }
-
   // Make sure required fields are provided
-  const requiredFields = ["title", "category", "cards"];
+  const requiredFields = withId ?
+    ["flashcardId", "title", "category", "cards"] :
+    ["title", "category", "cards"];
+
   requiredFields.forEach((field) => {
     if (!data[field]) {
       const errMsg = `The "${field}" field must be provided.`;
@@ -51,21 +45,46 @@ exports.addFlashcardSet = functions.https.onCall(async (data, context) => {
       " \"question\" and \"answer\" with non-empty string values.";
     throw new functions.https.HttpsError("invalid-argument", errMsg);
   }
+};
 
-  // Format data to be added into database
+// helper function to format data to be added/updated in the database
+const formatFlashcardSetData = (data, userId) => {
   const flashcardSetMetaData = {
     title: data.title.trim(),
     category: data.category.trim(),
     timestamp: Date.now(),
   };
-  const flashcardSet = {
-    creatorId: context.auth.uid,
-    cards: data.cards.map((obj) => ({
-      question: obj.question.trim(),
-      answer: obj.answer.trim(),
-    })),
-    ...flashcardSetMetaData,
+  return {
+    flashcardSetMetaData,
+    flashcardSet: {
+      cards: data.cards.map((obj) => ({
+        question: obj.question.trim(),
+        answer: obj.answer.trim(),
+      })),
+      ...flashcardSetMetaData,
+    },
   };
+};
+
+/*
+  Cloud Function to create a flashcard set as an authenticated user.
+
+  Expected input:
+    - "title" <string (1-30 characters)>
+    - "category" <string (1-30 characters)>
+    - "cards" []
+      - "question" <string (1+ characters)>
+      - "answer" <string (1+ characters)>
+*/
+exports.addFlashcardSet = functions.https.onCall(async (data, context) => {
+  const withId = false;
+  cuValidation(data, context, withId);
+
+  // Format data to be added into database
+  const {flashcardSetMetaData, flashcardSet} = formatFlashcardSetData(
+      data, context.auth.uid,
+  );
+  flashcardSet.creatorId = context.auth.uid;
 
   try {
     // Add document to "flashcard" database
@@ -84,6 +103,59 @@ exports.addFlashcardSet = functions.https.onCall(async (data, context) => {
     });
     // Return the flashcard set created to the client
     return {...flashcardSet, flashcardId: docRef.id};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});
+
+/**
+ * cloud function to update a flashcard set.
+
+  Expected input:
+    - "flashcardId"
+    - "title" <string (1-30 characters)>
+    - "category" <string (1-30 characters)>
+      - "cards" []
+      - "question" <string (1+ characters)>
+      - "answer" <string (1+ characters)>
+ */
+exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
+  const withId = true;
+  cuValidation(data, context, withId);
+
+  // Format data to be updated in the database
+  const {flashcardSetMetaData, flashcardSet} = formatFlashcardSetData(
+      data, context.auth.uid,
+  );
+
+  try {
+    const flashcardId = data.flashcardId;
+    // Update the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId === context.auth.uid) {
+        return docRef.update(flashcardSet);
+      } else {
+        const errMsg = "You do not have permission to edit this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
+      }
+    });
+
+    // Update the reference to the flashcard set in the "users" database
+    const user = admin.firestore().collection("users").doc(context.auth.uid);
+    const userDoc = await user.get();
+
+    let createdFlashcards = userDoc.data().created_flashcards;
+    createdFlashcards = createdFlashcards.map((fc) => {
+      if (fc.flashcardId !== flashcardId) return fc;
+      return {...flashcardSetMetaData, flashcardId};
+    });
+
+    await user.update({created_flashcards: createdFlashcards});
+    // Return the updated flashcard set to the client
+    return {...flashcardSet, flashcardId};
   } catch (err) {
     // Re-throwing the error as an HttpsError so the client gets the
     // error details
