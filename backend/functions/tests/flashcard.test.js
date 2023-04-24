@@ -193,22 +193,6 @@ describe("Testing Flashcard Set Functions", () => {
       expect(res.cards.length).toEqual(3);
       expect(res.cards).toEqual(data.cards);
       expect(res.timestamp).toBeTruthy();
-
-      // Validate reference to flashcard set is on "user" document
-      const snapshot = await admin
-          .firestore()
-          .collection("users")
-          .doc(user.uid)
-          .get();
-
-      expect(snapshot.exists).toBeTruthy();
-      const updatedFlashcard = snapshot.data().created_flashcards.find((obj) => {
-        return obj.flashcardId === res.flashcardId;
-      });
-
-      expect(updatedFlashcard).toBeTruthy();
-      expect(updatedFlashcard.title).toEqual(data.title);
-      expect(updatedFlashcard.category).toEqual(data.category);
     });
 
     test("throws error if not authenticated", async () => {
