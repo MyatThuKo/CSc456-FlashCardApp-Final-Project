@@ -137,6 +137,9 @@ exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
     await docRef.get().then((doc) => {
       if (doc.data().creatorId === context.auth.uid) {
         return docRef.update(flashcardSet);
+      } else {
+        const errMsg = "You do not have permission to edit this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
       }
     });
 

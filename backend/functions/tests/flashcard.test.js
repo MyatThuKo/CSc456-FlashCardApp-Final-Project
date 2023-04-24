@@ -221,5 +221,29 @@ describe("Testing Flashcard Set Functions", () => {
         );
       }
     });
+
+    test("throws error updating flashcard set we don't own", async () => {
+      // Create a test flashcard set for error cases
+      const data = {
+        creatorId: "some-uuid",
+        title: "Unowned Flashcard set",
+        category: "Test",
+        timestamp: Date.now(),
+        cards: [{question: "Q", answer: "A"}],
+      };
+      const docRef = await admin.firestore().collection("flashcards").add(data);
+      docsToDelete.push(docRef.id); // For cleanup
+
+      const context = {auth: {uid: user.uid}};
+      // Attempt to update flashcard set
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      await expect(updateFlashcardSet({flashcardId: docRef.id, ...data}, context)).rejects.toEqual(
+          new Error("You do not have permission to edit this flashcard set."),
+      );
+
+      // Validate flashcard set still exists
+      const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
+      expect(doc.exists).toBeTruthy();
+    });
   });
 });
