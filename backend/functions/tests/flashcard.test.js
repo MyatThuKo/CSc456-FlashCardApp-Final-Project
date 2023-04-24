@@ -317,7 +317,6 @@ describe("Testing Flashcard Set Functions", () => {
 
       // Valdiate flashcard set has been deleted
       const doc = await admin.firestore().collection("flashcards").doc(fcId).get();
-      console.log(doc.data());
       expect(doc.exists).not.toBeTruthy();
 
       // Validate reference to flashcard set ISN'T on "user" document
