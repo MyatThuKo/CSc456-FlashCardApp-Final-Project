@@ -183,6 +183,7 @@ exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
   }
 
   try {
+    let action = "trash"; // "delete" or "trash"
     // Delete the flashcard set in the "flashcards" database
     const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
     await docRef.get().then((doc) => {
@@ -192,17 +193,30 @@ exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError("permission-denied", errMsg);
       }
       // We know the person who called this function is the owner
-      return docRef.delete();
+      if (!doc.data().toBeDeleted) {
+        return docRef.update({toBeDeleted: true});
+      } else {
+        // Permanently delete flashcard set
+        action = "delete";
+        return docRef.delete();
+      }
     });
 
-    // Remove the reference to the flashcard set in the "users" database
-    const user = admin.firestore().collection("users").doc(context.auth.uid);
-    const userDoc = await user.get();
-    let createdFcs = userDoc.data().created_flashcards;
-    createdFcs = createdFcs.filter((fc) => fc.flashcardId !== flashcardId);
-    await user.update({created_flashcards: createdFcs});
+    // If we're permanently deleting the flashcard set
+    if (action === "delete") {
+      // Remove the reference to the flashcard set in the "users" database
+      const user = admin.firestore().collection("users").doc(context.auth.uid);
+      const userDoc = await user.get();
+      let createdFcs = userDoc.data().created_flashcards;
+      createdFcs = createdFcs.filter((fc) => fc.flashcardId !== flashcardId);
+      await user.update({created_flashcards: createdFcs});
+    }
     // Return the id of the flashcard set that was "deleted" to the client
-    return {flashcardId};
+    // along with a message of the action taken
+    const returnMsg = action === "delete" ?
+      "The flashcard set was permanently deleted." :
+      "The flashcard set was sent to the trash.";
+    return {flashcardId, message: returnMsg};
   } catch (err) {
     // Re-throwing the error as an HttpsError so the client gets the
     // error details

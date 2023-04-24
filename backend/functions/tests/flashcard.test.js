@@ -248,33 +248,44 @@ describe("Testing Flashcard Set Functions", () => {
 
   //* **************** Test deleteFlashcardSet ******************* */
   describe("deleteFlashcardSet", () => {
-    test("delete doc in /flashcards", async () => {
-      const addFlashcardSet = fft.wrap(myFunctions.addFlashcardSet);
+    let delDocId;
+
+    beforeAll(async () => {
       const data = {
-        title: "Test Set",
+        creatorId: user.uid,
+        title: "Doc to delete",
         category: "Test",
-        cards: [{question: "Q1", answer: "A1"}],
+        timestamp: Date.now(),
+        cards: [{question: "Q", answer: "A"}],
       };
+      const docRef = await admin.firestore().collection("flashcards").add(data);
+      delDocId = docRef.id;
+      docsToDelete.push(delDocId); // For cleanup
+    });
+
+    test(`"trash" doc in /flashcards`, async () => {
       const context = {auth: {uid: user.uid}};
-
-      const res = await addFlashcardSet(data, context);
-      const fcId = res.flashcardId;
-      docsToDelete.push(fcId); // For cleanup
-
-      // Validate response from adding flashcard set
-      expect(fcId).toBeTruthy();
-      expect(res.timestamp).toBeTruthy();
-      expect(res.creatorId).toBe(context.auth.uid);
-      for (const [key, value] of Object.entries(data)) {
-        expect(data[key]).toBe(value);
-      }
-
-      // Delete Flashcard
+      // "Trash" Flashcard
       const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
-      await deleteFlashcardSet({flashcardId: fcId}, context);
+      const res = await deleteFlashcardSet({flashcardId: delDocId}, context);
+      expect(res.message).toEqual("The flashcard set was sent to the trash.");
+
+      // Valdiate flashcard set still exists, but with "toBeDeleted = true"
+      const doc = await admin.firestore().collection("flashcards").doc(delDocId).get();
+      expect(doc.exists).toBeTruthy();
+      expect(doc.data().toBeDeleted).toBe(true);
+    });
+
+
+    test(`permanently delete doc in /flashcards`, async () => {
+      const context = {auth: {uid: user.uid}};
+      // Permanently Delete Flashcard
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      const res = await deleteFlashcardSet({flashcardId: delDocId}, context);
+      expect(res.message).toEqual("The flashcard set was permanently deleted.");
 
       // Valdiate flashcard set has been deleted
-      const doc = await admin.firestore().collection("flashcards").doc(fcId).get();
+      const doc = await admin.firestore().collection("flashcards").doc(delDocId).get();
       expect(doc.exists).not.toBeTruthy();
 
       // Validate reference to flashcard set ISN'T on "user" document
@@ -285,40 +296,40 @@ describe("Testing Flashcard Set Functions", () => {
           .get();
       expect(snapshot.exists).toBeTruthy();
       const flashcard = snapshot.data().created_flashcards.find((obj) => {
-        return obj.flashcardId === res.flashcardId;
+        return obj.flashcardId === delDocId;
       });
       expect(flashcard).not.toBeTruthy();
     });
-  });
 
-  test("throws error if not authenticated", async () => {
-    const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
-    await expect(deleteFlashcardSet({}, {})).rejects.toEqual(
-        new Error("You must be authenticated to delete a flashcard set."),
-    );
-  });
+    test("throws error if not authenticated", async () => {
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      await expect(deleteFlashcardSet({}, {})).rejects.toEqual(
+          new Error("You must be authenticated to delete a flashcard set."),
+      );
+    });
 
-  test("throws error deleting flashcard set we don't own", async () => {
-    // Create a test flashcard set for error cases
-    const data = {
-      creatorId: "fake-uuid",
-      title: "Unowned",
-      category: "Test",
-      timestamp: Date.now(),
-      cards: [{question: "Q", answer: "A"}],
-    };
-    const docRef = await admin.firestore().collection("flashcards").add(data);
-    docsToDelete.push(docRef.id); // For cleanup
+    test("throws error deleting flashcard set we don't own", async () => {
+      // Create a test flashcard set for error cases
+      const data = {
+        creatorId: "fake-uuid",
+        title: "Unowned",
+        category: "Test",
+        timestamp: Date.now(),
+        cards: [{question: "Q", answer: "A"}],
+      };
+      const docRef = await admin.firestore().collection("flashcards").add(data);
+      docsToDelete.push(docRef.id); // For cleanup
 
-    const context = {auth: {uid: user.uid}};
-    // Attempt to delete flashcard set
-    const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
-    await expect(deleteFlashcardSet({flashcardId: docRef.id}, context)).rejects.toEqual(
-        new Error("You do not have permission to delete this flashcard set."),
-    );
+      const context = {auth: {uid: user.uid}};
+      // Attempt to delete flashcard set
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      await expect(deleteFlashcardSet({flashcardId: docRef.id}, context)).rejects.toEqual(
+          new Error("You do not have permission to delete this flashcard set."),
+      );
 
-    // Validate flashcard set still exists
-    const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
-    expect(doc.exists).toBeTruthy();
+      // Validate flashcard set still exists
+      const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
+      expect(doc.exists).toBeTruthy();
+    });
   });
 });
