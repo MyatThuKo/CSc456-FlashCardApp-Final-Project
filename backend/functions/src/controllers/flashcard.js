@@ -186,7 +186,13 @@ exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
     // Delete the flashcard set in the "flashcards" database
     const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
     await docRef.get().then((doc) => {
-      if (doc.data().creatorId === context.auth.uid) return docRef.delete();
+      if (doc.data().creatorId !== context.auth.uid) {
+        const errMsg =
+          "You do not have permission to delete this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
+      }
+      // We know the person who called this function is the owner
+      return docRef.delete();
     });
 
     // Remove the reference to the flashcard set in the "users" database

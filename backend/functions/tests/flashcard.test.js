@@ -298,7 +298,7 @@ describe("Testing Flashcard Set Functions", () => {
     );
   });
 
-  test("silently handles case of deleting unowned flashcard set", async () => {
+  test("throws error deleting flashcard set we don't own", async () => {
     // Create a test flashcard set for error cases
     const data = {
       creatorId: "fake-uuid",
@@ -311,15 +311,14 @@ describe("Testing Flashcard Set Functions", () => {
     docsToDelete.push(docRef.id); // For cleanup
 
     const context = {auth: {uid: user.uid}};
-    // Attempt to delete flashcard set [will not be deleted]
+    // Attempt to delete flashcard set
     const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
-    await deleteFlashcardSet({flashcardId: docRef.id}, context);
+    await expect(deleteFlashcardSet({flashcardId: docRef.id}, context)).rejects.toEqual(
+        new Error("You do not have permission to delete this flashcard set."),
+    );
 
     // Validate flashcard set still exists
     const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
     expect(doc.exists).toBeTruthy();
-    for (const [key, value] of Object.entries(data)) {
-      expect(data[key]).toBe(value);
-    }
   });
 });
