@@ -153,10 +153,10 @@ describe("Testing Flashcard Set Functions", () => {
 
   //* **************** Test updateFlashcardSet ******************* */
   describe("updateFlashcardSet", () => {
-    test("update doc in /flascards and /users", async () => {
+    test("update doc in /flashcards and /users", async () => {
       const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
       const data = {
-        title: "Updated Flaschard Set Title",
+        title: "Updated Flashcard Set Title",
         category: "Updated category",
         cards: [
           {question: "Updated Question 1", answer: "Updated Answer 1"},

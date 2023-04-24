@@ -3,18 +3,17 @@ const admin = require("firebase-admin");
 
 const myUtils = require("../utils.js");
 
-
 // "cu" = Create & Update
 const cuValidation = (data, context, withId = false) => {
-  const word = withId? "update" : "create";
+  const word = withId ? "update" : "create";
   if (!context.auth) {
     const errMsg = `You must be authenticated to ${word} a flashcard set.`;
     throw new functions.https.HttpsError("unauthenticated", errMsg);
   }
   // Make sure required fields are provided
   const requiredFields = withId ?
-                        ["flashcardId", "title", "category", "cards"] :
-                        ["title", "category", "cards"];
+    ["flashcardId", "title", "category", "cards"] :
+    ["title", "category", "cards"];
 
   requiredFields.forEach((field) => {
     if (!data[field]) {
@@ -38,18 +37,18 @@ const cuValidation = (data, context, withId = false) => {
   }
   if (
     !Array.isArray(data.cards) ||
-      data.cards.length === 0 ||
-      !myUtils.arrayOfObjContainKeys(data.cards, ["question", "answer"])
+    data.cards.length === 0 ||
+    !myUtils.arrayOfObjContainKeys(data.cards, ["question", "answer"])
   ) {
     const errMsg =
-        "The \"cards\" field must be a non-empty array of objects with keys" +
-        " \"question\" and \"answer\" with non-empty string values.";
+      "The \"cards\" field must be a non-empty array of objects with keys" +
+      " \"question\" and \"answer\" with non-empty string values.";
     throw new functions.https.HttpsError("invalid-argument", errMsg);
   }
 };
 
 // helper function to format data to be added/updated in the database
-const formatFlashcardSetData = (userId, data) => {
+const formatFlashcardSetData = (data, userId) => {
   const flashcardSetMetaData = {
     title: data.title.trim(),
     category: data.category.trim(),
@@ -82,10 +81,10 @@ exports.addFlashcardSet = functions.https.onCall(async (data, context) => {
   cuValidation(data, context, withId);
 
   // Format data to be added into database
-  const {
-    flashcardSetMetaData,
-    flashcardSet,
-  } = formatFlashcardSetData(context.auth.uid, data);
+  const {flashcardSetMetaData, flashcardSet} = formatFlashcardSetData(
+      data, context.auth.uid,
+  );
+  flashcardSet.creatorId = context.auth.uid;
 
   try {
     // Add document to "flashcard" database
@@ -127,12 +126,20 @@ exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
   cuValidation(data, context, withId);
 
   // Format data to be updated in the database
-  const {
-    flashcardSetMetaData,
-    flashcardSet,
-  } = formatFlashcardSetData(context.auth.uid, data);
+  const {flashcardSetMetaData, flashcardSet} = formatFlashcardSetData(
+      data, context.auth.uid,
+  );
 
   try {
+    const flashcardId = data.flashcardId;
+    // Update the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId === context.auth.uid) {
+        return docRef.update(flashcardSet);
+      }
+    });
+
     // Update the reference to the flashcard set in the "users" database
     const user = admin.firestore().collection("users").doc(context.auth.uid);
     const userDoc = await user.get();
