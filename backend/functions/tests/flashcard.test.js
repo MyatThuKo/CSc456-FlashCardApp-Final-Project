@@ -329,10 +329,11 @@ describe("Testing Flashcard Set Functions", () => {
     test(`recover doc in /flashcards`, async () => {
       const data = {
         creatorId: user.uid,
-        title: "Doc to delete",
+        title: "Doc to recover",
         category: "Test",
         timestamp: Date.now(),
         cards: [{question: "Q", answer: "A"}],
+        toBeDeleted: true,
       };
       const docRef = await admin.firestore().collection("flashcards").add(data);
       const fcId = docRef.id;
