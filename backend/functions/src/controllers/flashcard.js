@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -237,15 +238,14 @@ exports.recoverFlashcardSet = functions.https.onCall(async (data, context) => {
   }
 
   // Make sure required fields are provided
-  const flashcardId = data.flashcardId;
-  if (!flashcardId) {
+  if (!data.flashcardId) {
     const errMsg = `The "flashcardId" field must be provided.`;
     throw new functions.https.HttpsError("invalid-argument", errMsg);
   }
 
   try {
     // Recover the flashcard set in the "flashcards" database
-    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    const docRef = admin.firestore().collection("flashcards").doc(data.flashcardId);
     await docRef.get().then((doc) => {
       if (doc.data().creatorId !== context.auth.uid) {
         const errMsg =
@@ -254,7 +254,8 @@ exports.recoverFlashcardSet = functions.https.onCall(async (data, context) => {
       }
       return docRef.update({toBeDeleted: false});
     });
-    return {flashcardId, message: "Flashcard set has been recovered."};
+    const returnMsg = "Flashcard set has been recovered.";
+    return {flashcardId: data.flashcardId, message: returnMsg};
   } catch (err) {
     // Re-throwing the error as an HttpsError so the client gets the
     // error details
