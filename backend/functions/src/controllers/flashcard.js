@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
@@ -156,6 +157,105 @@ exports.updateFlashcardSet = functions.https.onCall(async (data, context) => {
     await user.update({created_flashcards: createdFlashcards});
     // Return the updated flashcard set to the client
     return {...flashcardSet, flashcardId};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});
+
+/**
+ * cloud function to delete a flashcard set.
+
+  Expected input:
+    - "flashcardId"
+*/
+exports.deleteFlashcardSet = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    const errMsg = "You must be authenticated to delete a flashcard set.";
+    throw new functions.https.HttpsError("unauthenticated", errMsg);
+  }
+
+  // Make sure required fields are provided
+  const flashcardId = data.flashcardId;
+  if (!flashcardId) {
+    const errMsg = `The "flashcardId" field must be provided.`;
+    throw new functions.https.HttpsError("invalid-argument", errMsg);
+  }
+
+  try {
+    let action = "trash"; // "delete" or "trash"
+    // Delete the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId !== context.auth.uid) {
+        const errMsg =
+          "You do not have permission to delete this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
+      }
+      // We know the person who called this function is the owner
+      if (!doc.data().toBeDeleted) {
+        return docRef.update({toBeDeleted: true});
+      } else {
+        // Permanently delete flashcard set
+        action = "delete";
+        return docRef.delete();
+      }
+    });
+
+    // If we're permanently deleting the flashcard set
+    if (action === "delete") {
+      // Remove the reference to the flashcard set in the "users" database
+      const user = admin.firestore().collection("users").doc(context.auth.uid);
+      const userDoc = await user.get();
+      let createdFcs = userDoc.data().created_flashcards;
+      createdFcs = createdFcs.filter((fc) => fc.flashcardId !== flashcardId);
+      await user.update({created_flashcards: createdFcs});
+    }
+    // Return the id of the flashcard set that was "deleted" to the client
+    // along with a message of the action taken
+    const returnMsg = action === "delete" ?
+      "The flashcard set was permanently deleted." :
+      "The flashcard set was sent to the trash.";
+    return {flashcardId, message: returnMsg};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});
+
+/**
+ * cloud function to recover a flashcard set.
+
+  Expected input:
+    - "flashcardId"
+*/
+exports.recoverFlashcardSet = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    const errMsg = "You must be authenticated to recover a flashcard set.";
+    throw new functions.https.HttpsError("unauthenticated", errMsg);
+  }
+
+  // Make sure required fields are provided
+  if (!data.flashcardId) {
+    const errMsg = `The "flashcardId" field must be provided.`;
+    throw new functions.https.HttpsError("invalid-argument", errMsg);
+  }
+
+  try {
+    // Recover the flashcard set in the "flashcards" database
+    const docRef = admin.firestore().collection("flashcards").doc(data.flashcardId);
+    await docRef.get().then((doc) => {
+      if (doc.data().creatorId !== context.auth.uid) {
+        const errMsg =
+          "You do not have permission to recover this flashcard set.";
+        throw new functions.https.HttpsError("permission-denied", errMsg);
+      }
+      return docRef.update({toBeDeleted: false});
+    });
+    const returnMsg = "Flashcard set has been recovered.";
+    return {flashcardId: data.flashcardId, message: returnMsg};
   } catch (err) {
     // Re-throwing the error as an HttpsError so the client gets the
     // error details
