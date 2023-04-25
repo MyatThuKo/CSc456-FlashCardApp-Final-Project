@@ -8,10 +8,17 @@ const fft = require("firebase-functions-test")(
 );
 
 // Testing https.onCall function
-
 describe("Testing Flashcard Set Functions", () => {
   let myFunctions;
   let user;
+  const unownedFCSetData = {
+    creatorId: "fake-uuid",
+    title: "Unowned",
+    category: "Test",
+    timestamp: Date.now(),
+    cards: [{question: "Q", answer: "A"}],
+  };
+  let unownedFCSetId;
   const docsToDelete = [];
 
   // Loops through the keys of object 1 and makes sure it exists & is equal
@@ -31,6 +38,11 @@ describe("Testing Flashcard Set Functions", () => {
     user.email = "testuser2@gmail.com";
     const newUserSignup = fft.wrap(myFunctions.newUserSignup);
     await newUserSignup(user);
+
+    // Create a test flashcard set for error cases
+    const docRef = await admin.firestore().collection("flashcards").add(unownedFCSetData);
+    unownedFCSetId = docRef.id;
+    docsToDelete.push(unownedFCSetId); // For cleanup
   });
 
   afterAll(async () => {
@@ -223,27 +235,136 @@ describe("Testing Flashcard Set Functions", () => {
     });
 
     test("throws error updating flashcard set we don't own", async () => {
-      // Create a test flashcard set for error cases
+      const context = {auth: {uid: user.uid}};
+      // Attempt to update flashcard set
+      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
+      await expect(updateFlashcardSet({flashcardId: unownedFCSetId, ...unownedFCSetData}, context)).rejects.toEqual(
+          new Error("You do not have permission to edit this flashcard set."),
+      );
+
+      // Validate flashcard set still exists
+      const doc = await admin.firestore().collection("flashcards").doc(unownedFCSetId).get();
+      expect(doc.exists).toBeTruthy();
+    });
+  });
+
+  //* **************** Test deleteFlashcardSet ******************* */
+  describe("deleteFlashcardSet", () => {
+    let delDocId;
+
+    beforeAll(async () => {
       const data = {
-        creatorId: "some-uuid",
-        title: "Unowned Flashcard set",
+        creatorId: user.uid,
+        title: "Doc to delete",
         category: "Test",
         timestamp: Date.now(),
         cards: [{question: "Q", answer: "A"}],
       };
       const docRef = await admin.firestore().collection("flashcards").add(data);
-      docsToDelete.push(docRef.id); // For cleanup
+      delDocId = docRef.id;
+      docsToDelete.push(delDocId); // For cleanup
+    });
 
+    test(`"trash" doc in /flashcards`, async () => {
       const context = {auth: {uid: user.uid}};
-      // Attempt to update flashcard set
-      const updateFlashcardSet = fft.wrap(myFunctions.updateFlashcardSet);
-      await expect(updateFlashcardSet({flashcardId: docRef.id, ...data}, context)).rejects.toEqual(
-          new Error("You do not have permission to edit this flashcard set."),
+      // "Trash" Flashcard
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      const res = await deleteFlashcardSet({flashcardId: delDocId}, context);
+      expect(res.message).toEqual("The flashcard set was sent to the trash.");
+
+      // Valdiate flashcard set still exists, but with "toBeDeleted = true"
+      const doc = await admin.firestore().collection("flashcards").doc(delDocId).get();
+      expect(doc.exists).toBeTruthy();
+      expect(doc.data().toBeDeleted).toBe(true);
+    });
+
+
+    test(`permanently delete doc in /flashcards`, async () => {
+      const context = {auth: {uid: user.uid}};
+      // Permanently Delete Flashcard
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      const res = await deleteFlashcardSet({flashcardId: delDocId}, context);
+      expect(res.message).toEqual("The flashcard set was permanently deleted.");
+
+      // Valdiate flashcard set has been deleted
+      const doc = await admin.firestore().collection("flashcards").doc(delDocId).get();
+      expect(doc.exists).not.toBeTruthy();
+
+      // Validate reference to flashcard set ISN'T on "user" document
+      const snapshot = await admin
+          .firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+      expect(snapshot.exists).toBeTruthy();
+      const flashcard = snapshot.data().created_flashcards.find((obj) => {
+        return obj.flashcardId === delDocId;
+      });
+      expect(flashcard).not.toBeTruthy();
+    });
+
+    test("throws error if not authenticated", async () => {
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      await expect(deleteFlashcardSet({}, {})).rejects.toEqual(
+          new Error("You must be authenticated to delete a flashcard set."),
+      );
+    });
+
+    test("throws error deleting flashcard set we don't own", async () => {
+      const context = {auth: {uid: user.uid}};
+      // Attempt to delete flashcard set
+      const deleteFlashcardSet = fft.wrap(myFunctions.deleteFlashcardSet);
+      await expect(deleteFlashcardSet({flashcardId: unownedFCSetId}, context)).rejects.toEqual(
+          new Error("You do not have permission to delete this flashcard set."),
       );
 
       // Validate flashcard set still exists
-      const doc = await admin.firestore().collection("flashcards").doc(docRef.id).get();
+      const doc = await admin.firestore().collection("flashcards").doc(unownedFCSetId).get();
       expect(doc.exists).toBeTruthy();
+    });
+  });
+
+  //* **************** Test recoverFlashcardSet ******************* */
+  describe("recoverFlashcardSet", () => {
+    test(`recover doc in /flashcards`, async () => {
+      const data = {
+        creatorId: user.uid,
+        title: "Doc to recover",
+        category: "Test",
+        timestamp: Date.now(),
+        cards: [{question: "Q", answer: "A"}],
+        toBeDeleted: true,
+      };
+      const docRef = await admin.firestore().collection("flashcards").add(data);
+      const fcId = docRef.id;
+      docsToDelete.push(fcId); // For cleanup
+
+      const context = {auth: {uid: user.uid}};
+      // Recover Flashcard
+      const recoverFlashcardSet = fft.wrap(myFunctions.recoverFlashcardSet);
+      const res = await recoverFlashcardSet({flashcardId: fcId}, context);
+      expect(res.message).toEqual("Flashcard set has been recovered.");
+
+      // Valdiate flashcard set has "toBeDeleted = false"
+      const doc = await admin.firestore().collection("flashcards").doc(fcId).get();
+      expect(doc.exists).toBeTruthy();
+      expect(doc.data().toBeDeleted).toBe(false);
+    });
+
+    test("throws error if not authenticated", async () => {
+      const recoverFlashcardSet = fft.wrap(myFunctions.recoverFlashcardSet);
+      await expect(recoverFlashcardSet({}, {})).rejects.toEqual(
+          new Error("You must be authenticated to recover a flashcard set."),
+      );
+    });
+
+    test("throws error recovering flashcard set we don't own", async () => {
+      const context = {auth: {uid: user.uid}};
+      // Attempt to recover flashcard set
+      const recoverFlashcardSet = fft.wrap(myFunctions.recoverFlashcardSet);
+      await expect(recoverFlashcardSet({flashcardId: unownedFCSetId}, context)).rejects.toEqual(
+          new Error("You do not have permission to recover this flashcard set."),
+      );
     });
   });
 });
