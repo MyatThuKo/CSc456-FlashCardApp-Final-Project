@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 const path = require("path");
+const crypto = require("crypto");
 
 const admin = require("firebase-admin");
 const fft = require("firebase-functions-test")(
@@ -12,7 +13,7 @@ describe("Testing Flashcard Set Functions", () => {
   let myFunctions;
   let user;
   const unownedFCSetData = {
-    creatorId: "fake-uuid",
+    creatorId: crypto.randomUUID(),
     title: "Unowned",
     category: "Test",
     timestamp: Date.now(),
@@ -32,10 +33,11 @@ describe("Testing Flashcard Set Functions", () => {
   beforeAll(async () => {
     myFunctions = require("../index");
 
+    const randUUID = crypto.randomUUID();
     // Create a test user
     user = fft.auth.exampleUserRecord();
-    user.uid = "test-id-2";
-    user.email = "testuser2@gmail.com";
+    user.uid = randUUID;
+    user.email = `testuser-${randUUID}@gmail.com`;
     const newUserSignup = fft.wrap(myFunctions.newUserSignup);
     await newUserSignup(user);
 
