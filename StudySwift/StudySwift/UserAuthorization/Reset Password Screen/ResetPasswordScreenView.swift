@@ -10,7 +10,8 @@ import SwiftUI
 struct ResetPasswordScreenView: View {
     
     @ObservedObject var viewModel: ResetPasswordScreenViewModel
-    @State private var isFormEmpty: Bool = false
+    @State private var showResetEmailSentAlert: Bool = false
+    @State private var errorMessage: String = ""
     
     var body: some View {
         NavigationView {
@@ -27,20 +28,22 @@ struct ResetPasswordScreenView: View {
                         .textFieldStyle(RoundedTextFieldStyle())
                         .textInputAutocapitalization(.never)
                     
-                    if isFormEmpty {
-                        Text("Invalid input! Please try again!")
-                            .padding(.horizontal)
-                            .foregroundColor(.red)
-                    }
+                    Text(errorMessage)
+                        .padding(.horizontal)
+                        .foregroundColor(showResetEmailSentAlert ? .green : .red)
                 }
                 .padding(.horizontal, 16)
                 
                 Spacer()
                 
                 Button {
-                    isFormEmpty = viewModel.email.isEmpty
-                    if !isFormEmpty {
+                    if viewModel.sendResetPasswordEmail() {
+                        errorMessage = "Password reset email sent!"
+                        showResetEmailSentAlert = true
                         viewModel.resetPassword()
+                    } else {
+                        errorMessage = "Invalid user! Please try again."
+                        showResetEmailSentAlert = false
                     }
                 } label: {
                     Text("Reset password")

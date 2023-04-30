@@ -17,4 +17,8 @@ class ResetPasswordScreenViewModel: ObservableObject {
     func resetPassword() {
         print("Reset password email sent to \(email).")
     }
+    
+    func sendResetPasswordEmail() -> Bool {
+        return email == "reset@example.com"
+    }
 }
