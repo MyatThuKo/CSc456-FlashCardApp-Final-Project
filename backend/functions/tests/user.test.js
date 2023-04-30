@@ -1,4 +1,5 @@
 const path = require("path");
+const crypto = require("crypto");
 
 const admin = require("firebase-admin");
 const fft = require("firebase-functions-test")(
@@ -13,10 +14,12 @@ describe("newUserSignup", () => {
 
   beforeAll(() => {
     myFunctions = require("../index");
+
+    const randUUID = crypto.randomUUID();
     // Create a test user
     user = fft.auth.exampleUserRecord();
-    user.uid = "test-id-1";
-    user.email = "testuser1@gmail.com";
+    user.uid = randUUID;
+    user.email = `testuser-${randUUID}@gmail.com`;
   });
 
   afterAll(async () => {
