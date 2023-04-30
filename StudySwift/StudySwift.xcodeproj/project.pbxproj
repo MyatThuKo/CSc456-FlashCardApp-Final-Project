@@ -14,6 +14,12 @@
 		E240F02329E7AA49007FC96C /* StudySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E240F02229E7AA49007FC96C /* StudySwiftTests.swift */; };
 		E240F02D29E7AA49007FC96C /* StudySwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E240F02C29E7AA49007FC96C /* StudySwiftUITests.swift */; };
 		E240F02F29E7AA49007FC96C /* StudySwiftUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E240F02E29E7AA49007FC96C /* StudySwiftUITestsLaunchTests.swift */; };
+		E29D202829FDB92000E67F2C /* LoginScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D202729FDB92000E67F2C /* LoginScreenView.swift */; };
+		E29D202C29FDBB6400E67F2C /* LoginScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D202B29FDBB6400E67F2C /* LoginScreenViewModel.swift */; };
+		E29D203029FDED5700E67F2C /* ResetPasswordScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D202F29FDED5700E67F2C /* ResetPasswordScreenView.swift */; };
+		E29D203229FDED8400E67F2C /* ResetPasswordScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D203129FDED8400E67F2C /* ResetPasswordScreenViewModel.swift */; };
+		E2B26F9B29F84EE700B7D984 /* SignupScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B26F9A29F84EE700B7D984 /* SignupScreenView.swift */; };
+		E2B26F9D29F84EF300B7D984 /* SignupScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B26F9C29F84EF300B7D984 /* SignupScreenViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +51,12 @@
 		E240F02829E7AA49007FC96C /* StudySwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StudySwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E240F02C29E7AA49007FC96C /* StudySwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySwiftUITests.swift; sourceTree = "<group>"; };
 		E240F02E29E7AA49007FC96C /* StudySwiftUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySwiftUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		E29D202729FDB92000E67F2C /* LoginScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreenView.swift; sourceTree = "<group>"; };
+		E29D202B29FDBB6400E67F2C /* LoginScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreenViewModel.swift; sourceTree = "<group>"; };
+		E29D202F29FDED5700E67F2C /* ResetPasswordScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordScreenView.swift; sourceTree = "<group>"; };
+		E29D203129FDED8400E67F2C /* ResetPasswordScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordScreenViewModel.swift; sourceTree = "<group>"; };
+		E2B26F9A29F84EE700B7D984 /* SignupScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupScreenView.swift; sourceTree = "<group>"; };
+		E2B26F9C29F84EF300B7D984 /* SignupScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupScreenViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +109,7 @@
 			children = (
 				E240F01029E7AA47007FC96C /* StudySwiftApp.swift */,
 				E240F01229E7AA47007FC96C /* ContentView.swift */,
+				E2B26F9E29F84F5200B7D984 /* UserAuthorization */,
 				E240F01429E7AA49007FC96C /* Assets.xcassets */,
 				E240F01629E7AA49007FC96C /* StudySwift.entitlements */,
 				E240F01729E7AA49007FC96C /* Preview Content */,
@@ -127,6 +140,43 @@
 				E240F02E29E7AA49007FC96C /* StudySwiftUITestsLaunchTests.swift */,
 			);
 			path = StudySwiftUITests;
+			sourceTree = "<group>";
+		};
+		E29D202D29FDED3000E67F2C /* Login Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E29D202729FDB92000E67F2C /* LoginScreenView.swift */,
+				E29D202B29FDBB6400E67F2C /* LoginScreenViewModel.swift */,
+			);
+			path = "Login Screen";
+			sourceTree = "<group>";
+		};
+		E29D202E29FDED3F00E67F2C /* Signup Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E2B26F9A29F84EE700B7D984 /* SignupScreenView.swift */,
+				E2B26F9C29F84EF300B7D984 /* SignupScreenViewModel.swift */,
+			);
+			path = "Signup Screen";
+			sourceTree = "<group>";
+		};
+		E29D203329FDEF0300E67F2C /* Reset Password Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E29D202F29FDED5700E67F2C /* ResetPasswordScreenView.swift */,
+				E29D203129FDED8400E67F2C /* ResetPasswordScreenViewModel.swift */,
+			);
+			path = "Reset Password Screen";
+			sourceTree = "<group>";
+		};
+		E2B26F9E29F84F5200B7D984 /* UserAuthorization */ = {
+			isa = PBXGroup;
+			children = (
+				E29D202E29FDED3F00E67F2C /* Signup Screen */,
+				E29D202D29FDED3000E67F2C /* Login Screen */,
+				E29D203329FDEF0300E67F2C /* Reset Password Screen */,
+			);
+			path = UserAuthorization;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -259,7 +309,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E29D202829FDB92000E67F2C /* LoginScreenView.swift in Sources */,
+				E2B26F9D29F84EF300B7D984 /* SignupScreenViewModel.swift in Sources */,
+				E29D202C29FDBB6400E67F2C /* LoginScreenViewModel.swift in Sources */,
+				E29D203229FDED8400E67F2C /* ResetPasswordScreenViewModel.swift in Sources */,
+				E2B26F9B29F84EE700B7D984 /* SignupScreenView.swift in Sources */,
 				E240F01329E7AA47007FC96C /* ContentView.swift in Sources */,
+				E29D203029FDED5700E67F2C /* ResetPasswordScreenView.swift in Sources */,
 				E240F01129E7AA47007FC96C /* StudySwiftApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
