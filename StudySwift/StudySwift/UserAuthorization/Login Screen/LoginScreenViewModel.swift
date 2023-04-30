@@ -17,9 +17,11 @@ class LoginScreenViewModel: ObservableObject {
     }
     
     func login() {
-        let email = email
-        let password = password
-        
-        print("Login with email: \(email).")
+        print("Login successful!\nEmail: \(email)")
     }
+    
+    func isUserValid() -> Bool {
+        return (email == "test@example.com" && password == "Test@212")
+    }
+
 }

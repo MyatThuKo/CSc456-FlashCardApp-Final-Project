@@ -10,7 +10,8 @@ import SwiftUI
 struct LoginScreenView: View {
     
     @ObservedObject var viewModel: LoginScreenViewModel
-    @State private var isFormEmpty: Bool = false
+    @State private var isUserValid: Bool = true
+    @State private var errorMessage: String = ""
     
     var body: some View {
         NavigationView {
@@ -30,8 +31,8 @@ struct LoginScreenView: View {
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedTextFieldStyle())
                     
-                    if isFormEmpty {
-                        Text("Invalid input! Please try again!")
+                    if !isUserValid {
+                        Text(errorMessage)
                             .padding(.horizontal)
                             .foregroundColor(.red)
                     }
@@ -41,9 +42,12 @@ struct LoginScreenView: View {
                 Spacer()
                 
                 Button {
-                    isFormEmpty = viewModel.email.isEmpty || viewModel.password.isEmpty
-                    if !isFormEmpty {
+                    if viewModel.isUserValid(){
+                        isUserValid = true
                         viewModel.login()
+                    } else {
+                        isUserValid = false
+                        errorMessage = "Invalid email or password. Please try again."
                     }
                 } label: {
                     Text("Login")
