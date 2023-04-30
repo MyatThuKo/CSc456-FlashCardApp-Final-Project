@@ -20,10 +20,21 @@ class SignUpViewModel: ObservableObject {
     }
 
     func signUp() {
-        let email = email
-        let password = password
-        let confirmPassword = confirmPassword
-        
-        print("Account created with \(email).")
+        print("Sign up successful!\nEmail: \(email)")
+    }
+    
+    func isValidEmail() -> Bool {
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}")
+        return emailPredicate.evaluate(with: email)
+    }
+    
+    func isValidPassword() -> Bool {
+        let passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=.*[0-9]).{6,}$"
+        let passwordTest = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
+        return passwordTest.evaluate(with: password)
+    }
+    
+    func isSamePassword() -> Bool {
+        return password == confirmPassword
     }
 }

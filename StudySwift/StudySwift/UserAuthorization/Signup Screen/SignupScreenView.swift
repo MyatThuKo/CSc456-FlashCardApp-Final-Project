@@ -9,8 +9,9 @@ import SwiftUI
 
 struct SignupScreenView: View {
     @ObservedObject var viewModel: SignUpViewModel
-    @State private var isPasswordSame: Bool = true
-    @State private var isFormEmpty: Bool = false
+    @State private var isPasswordValid: Bool = true
+    @State private var isEmailValid: Bool = true
+    @State private var errorMessage: String = ""
     
     var body: some View {
         NavigationView {
@@ -30,23 +31,16 @@ struct SignupScreenView: View {
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedTextFieldStyle())
                     
-                    if(!isPasswordSame && !viewModel.password.isEmpty) {
-                        Text("Passwords need to be the same.")
-                            .padding(.horizontal)
-                            .foregroundColor(.red)
-                    }
-                    
                     SecureField("Confirm Password", text: $viewModel.confirmPassword)
                         .textFieldStyle(RoundedTextFieldStyle())
                     
-                    if(!isPasswordSame && !viewModel.password.isEmpty) {
-                        Text("Passwords need to be the same.")
-                            .padding(.horizontal)
+                    if !isEmailValid {
+                        Text(errorMessage)
                             .foregroundColor(.red)
-                    }
-                    
-                    if isFormEmpty {
-                        Text("Invalid input! Please try again!")
+                            .padding(.horizontal)
+                    } else if !isPasswordValid {
+                        Text(errorMessage)
+                            .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(.red)
                             .padding(.horizontal)
                     }
@@ -56,12 +50,22 @@ struct SignupScreenView: View {
                 Spacer()
                 
                 Button {
-                    isFormEmpty = viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.confirmPassword.isEmpty
-                    if (viewModel.password == viewModel.confirmPassword && !isFormEmpty) {
-                        isPasswordSame = true
-                        viewModel.signUp()
+                    if !viewModel.isValidEmail() {
+                        isEmailValid = false
+                        isPasswordValid = true
+                        errorMessage = "Invalid email!"
+                    } else if !viewModel.isValidPassword() {
+                        isPasswordValid = false
+                        isEmailValid = true
+                        errorMessage = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one special character."
+                    } else if !viewModel.isSamePassword() {
+                        isPasswordValid = false
+                        isEmailValid = true
+                        errorMessage = "Passwords do not match! Please try again."
                     } else {
-                        isPasswordSame = false
+                        isEmailValid = true
+                        isPasswordValid = true
+                        viewModel.signUp()
                     }
                 } label: {
                     Text("Sign up")
