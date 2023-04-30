@@ -25,7 +25,7 @@ struct ResetPasswordScreenView: View {
                 VStack(alignment: .leading, spacing: 25) {
                     TextField("Email", text: $viewModel.email)
                         .textFieldStyle(RoundedTextFieldStyle())
-                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
                     
                     if isFormEmpty {
                         Text("Invalid input! Please try again!")

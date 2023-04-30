@@ -25,7 +25,7 @@ struct SignupScreenView: View {
                 VStack(alignment: .leading, spacing: 25) {
                     TextField("Email", text: $viewModel.email)
                         .textFieldStyle(RoundedTextFieldStyle())
-                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
                     
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedTextFieldStyle())
