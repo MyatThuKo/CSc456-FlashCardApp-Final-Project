@@ -40,6 +40,7 @@ struct ProfileScreenView: View {
 
                     if !isPasswordValid {
                         Text(errorMessage)
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(.horizontal)
                             .foregroundColor(.red)
                     }
