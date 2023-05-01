@@ -19,15 +19,7 @@ struct HomeScreenView: View {
                 Button {
                     // add flashcard
                 } label: {
-                    Text("Add Flashcard")
-                        .foregroundColor(.black)
-                        .frame(width: 150, height: 35)
-                        .padding(.vertical)
-                        .padding(.horizontal, 24)
-                        .background(
-                            Color("buttonColor")
-                        )
-                        .clipShape(Capsule(style: .continuous))
+                    RoundedButtonView(title: "Add flashcard")
                 }
                 
                 Spacer()

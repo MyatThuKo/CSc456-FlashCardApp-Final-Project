@@ -60,15 +60,7 @@ struct ProfileScreenView: View {
                         viewModel.resetPassword()
                     }
                 } label: {
-                    Text("Reset Password")
-                        .foregroundColor(.black)
-                        .frame(width: 150, height: 35)
-                        .padding(.vertical)
-                        .padding(.horizontal, 24)
-                        .background(
-                            Color("buttonColor")
-                        )
-                        .clipShape(Capsule(style: .continuous))
+                    RoundedButtonView(title: "Reset password")
                 }
                 .padding()
 
