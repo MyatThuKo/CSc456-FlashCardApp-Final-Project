@@ -29,6 +29,7 @@ struct ResetPasswordScreenView: View {
                         .textInputAutocapitalization(.never)
                     
                     Text(errorMessage)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)
                         .foregroundColor(showResetEmailSentAlert ? .green : .red)
                 }
