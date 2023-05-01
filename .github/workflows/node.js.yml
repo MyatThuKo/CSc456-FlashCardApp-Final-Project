@@ -1,0 +1,40 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend/functions
+    strategy:
+      matrix:
+        node-version: [16, 18, 19]
+
+    name: Node.js ${{ matrix.node-version }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # Ref: https://stackoverflow.com/questions/70568653/google-services-json-file-for-github-actions
+    - name: Create Google Services JSON File
+      env:
+        GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      run: echo ${{ env.GOOGLE_SERVICES_JSON }} | base64 -di > ./tests/serviceAccountKey.json
+
+    - name: Run tests
+      run: |
+        npm ci
+        npm test
