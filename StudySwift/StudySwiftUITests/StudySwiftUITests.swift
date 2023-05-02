@@ -35,12 +35,12 @@ final class StudySwiftUITests: XCTestCase {
         let passwordField = app.secureTextFields["Password"]
         XCTAssertTrue(passwordField.exists)
         passwordField.tap()
-        passwordField.typeText("password")
+        passwordField.typeText("P@ssword12356")
         
         let confirmField = app.secureTextFields["Confirm Password"]
         XCTAssertTrue(confirmField.exists)
         confirmField.tap()
-        confirmField.typeText("password")
+        confirmField.typeText("P@ssword12356")
         
         
         let button = app.buttons["Sign up"]
@@ -64,7 +64,7 @@ final class StudySwiftUITests: XCTestCase {
         let passwordField = app.secureTextFields["Password"]
         XCTAssertTrue(passwordField.exists)
         passwordField.tap()
-        passwordField.typeText("password")
+        passwordField.typeText("P@ssword12356")
         
         let button = app.buttons["Login"]
         XCTAssertTrue(button.exists)
