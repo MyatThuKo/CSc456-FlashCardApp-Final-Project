@@ -19,7 +19,7 @@ class AuthViewModel: ObservableObject {
     private var isDoingTask = false
     
     func signUp(email: String, password: String) {
-        if isDoingTask {
+        if self.isDoingTask {
             return
         }
         
@@ -36,7 +36,7 @@ class AuthViewModel: ObservableObject {
     }
     
     func signIn(email: String, password: String) {
-        if isDoingTask {
+        if self.isDoingTask {
             return
         }
         
