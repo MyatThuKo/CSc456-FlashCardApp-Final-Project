@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ProfileScreenView: View {
 
+    @EnvironmentObject var authModel: AuthViewModel
+    
     @ObservedObject var viewModel: ProfileScreenViewModel
     @State private var errorMessage: String = ""
     @State private var isLogout: Bool = false
@@ -66,7 +68,8 @@ struct ProfileScreenView: View {
                 .padding()
 
                 Button {
-                    isLogout = true
+                    // isLogout = true
+                    authModel.signOut()
                 } label: {
                     Text("Logout")
                 }
