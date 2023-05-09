@@ -31,6 +31,6 @@ class ProfileScreenViewModel: ObservableObject {
     }
 
     func isSamePassword() -> Bool {
-        return oldPassword == confirmPassword
+        return (newPassword == confirmPassword && oldPassword != newPassword)
     }
 }
