@@ -10,7 +10,8 @@ import Firebase
 
 @main
 struct StudySwiftApp: App {
-    @StateObject var authModel = AuthViewModel()
+    @StateObject var authModel = AuthViewModel.sharedInstance
+    @StateObject var dataStoreModel = DataStoreModel.sharedInstance
     
     init() {
         FirebaseApp.configure()
@@ -24,6 +25,7 @@ struct StudySwiftApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authModel)
+                .environmentObject(dataStoreModel)
         }
     }
 }

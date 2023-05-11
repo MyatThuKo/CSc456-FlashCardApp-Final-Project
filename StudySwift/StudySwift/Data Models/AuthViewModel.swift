@@ -15,7 +15,15 @@ class AuthViewModel: ObservableObject {
         case signedOut
     }
     
-    @Published var state: SignInState = .signedOut
+    @Published var state: SignInState = .signedOut {
+        didSet {
+            if (state == .signedIn) {
+                DataStoreModel.sharedInstance.fetchFlashcards()
+            } else {
+                DataStoreModel.sharedInstance.clearFlashcards()
+            }
+        }
+    }
     private var isDoingTask = false
     
     func signUp(email: String, password: String) {
@@ -60,4 +68,7 @@ class AuthViewModel: ObservableObject {
             print(error.localizedDescription)
         }
     }
+    
+    static let sharedInstance = AuthViewModel()
 }
+

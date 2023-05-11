@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authModel: AuthViewModel
+    @EnvironmentObject var dataStoreModel: DataStoreModel
     
     var body: some View {
         switch authModel.state {
@@ -21,6 +22,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .environmentObject(AuthViewModel())
+            .environmentObject(AuthViewModel.sharedInstance)
+            .environmentObject(DataStoreModel.sharedInstance)
     }
 }

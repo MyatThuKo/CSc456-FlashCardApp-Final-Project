@@ -27,6 +27,7 @@
 		E29D203229FDED8400E67F2C /* ResetPasswordScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D203129FDED8400E67F2C /* ResetPasswordScreenViewModel.swift */; };
 		E2B26F9B29F84EE700B7D984 /* SignupScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B26F9A29F84EE700B7D984 /* SignupScreenView.swift */; };
 		E2B26F9D29F84EF300B7D984 /* SignupScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B26F9C29F84EF300B7D984 /* SignupScreenViewModel.swift */; };
+		F5184E652A0D1EB5007008CA /* DataStoreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5184E642A0D1EB5007008CA /* DataStoreModel.swift */; };
 		F5CFFB1A2A0841C400929542 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F5CFFB192A0841C400929542 /* GoogleService-Info.plist */; };
 		F5CFFB1B2A0841C400929542 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F5CFFB192A0841C400929542 /* GoogleService-Info.plist */; };
 		F5CFFB1C2A0841C400929542 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F5CFFB192A0841C400929542 /* GoogleService-Info.plist */; };
@@ -80,6 +81,7 @@
 		E29D203129FDED8400E67F2C /* ResetPasswordScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordScreenViewModel.swift; sourceTree = "<group>"; };
 		E2B26F9A29F84EE700B7D984 /* SignupScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupScreenView.swift; sourceTree = "<group>"; };
 		E2B26F9C29F84EF300B7D984 /* SignupScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupScreenViewModel.swift; sourceTree = "<group>"; };
+		F5184E642A0D1EB5007008CA /* DataStoreModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStoreModel.swift; sourceTree = "<group>"; };
 		F5CFFB192A0841C400929542 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F5CFFB242A0857F200929542 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -173,6 +175,7 @@
 		E240F00F29E7AA47007FC96C /* StudySwift */ = {
 			isa = PBXGroup;
 			children = (
+				F5184E632A0D1E97007008CA /* Data Models */,
 				E240F01029E7AA47007FC96C /* StudySwiftApp.swift */,
 				E240F01229E7AA47007FC96C /* ContentView.swift */,
 				E20759F02A004CC200B66FD5 /* Landing Screen */,
@@ -243,9 +246,17 @@
 				E29D202E29FDED3F00E67F2C /* Signup Screen */,
 				E29D202D29FDED3000E67F2C /* Login Screen */,
 				E29D203329FDEF0300E67F2C /* Reset Password Screen */,
-				F5CFFB242A0857F200929542 /* AuthViewModel.swift */,
 			);
 			path = UserAuthorization;
+			sourceTree = "<group>";
+		};
+		F5184E632A0D1E97007008CA /* Data Models */ = {
+			isa = PBXGroup;
+			children = (
+				F5CFFB242A0857F200929542 /* AuthViewModel.swift */,
+				F5184E642A0D1EB5007008CA /* DataStoreModel.swift */,
+			);
+			path = "Data Models";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -403,6 +414,7 @@
 				E20759F22A004FDE00B66FD5 /* HomeScreenViewModel.swift in Sources */,
 				F5CFFB252A0857F200929542 /* AuthViewModel.swift in Sources */,
 				E29D203029FDED5700E67F2C /* ResetPasswordScreenView.swift in Sources */,
+				F5184E652A0D1EB5007008CA /* DataStoreModel.swift in Sources */,
 				E20759E62A004C5600B66FD5 /* ProfileScreenView.swift in Sources */,
 				E240F01129E7AA47007FC96C /* StudySwiftApp.swift in Sources */,
 			);
