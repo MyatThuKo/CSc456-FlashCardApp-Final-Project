@@ -69,6 +69,32 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    func updatePassword(oldPassword: String, newPassword: String) {
+        if self.isDoingTask {
+            return
+        }
+        
+        self.isDoingTask = true
+        let user = Auth.auth().currentUser
+        let credential: AuthCredential = EmailAuthProvider.credential(withEmail: user?.email ?? "", password: oldPassword)
+        
+        user?.reauthenticate(with: credential) { (result, error) in
+            if let error = error {
+                print("Error:", error.localizedDescription) // Incorrect old password
+                self.isDoingTask = false
+            } else {
+                user?.updatePassword(to: newPassword) { error in
+                    if let error = error {
+                        print(error.localizedDescription) // Failed to update password
+                    } else {
+                        print("Updated password successfully.")
+                    }
+                    self.isDoingTask = false
+                }
+            }
+        }
+    }
+    
     static let sharedInstance = AuthViewModel()
 }
 

@@ -60,10 +60,11 @@ struct ProfileScreenView: View {
                         errorMessage = "Passwords do not match! Please try again."
                     } else {
                         isPasswordValid = true
-                        viewModel.resetPassword()
+                        // viewModel.resetPassword()
+                        authModel.updatePassword(oldPassword: viewModel.oldPassword, newPassword: viewModel.newPassword)
                     }
                 } label: {
-                    RoundedButtonView(title: "Reset password")
+                    RoundedButtonView(title: "Update password")
                 }
                 .padding()
 
