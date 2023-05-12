@@ -25,12 +25,14 @@ class DataStoreModel: ObservableObject {
     }
     
     @Published var flashcardSets: [FlashcardSet] = []
+    @Published var trash: [FlashcardSet] = []
     
     func fetchFlashcards() {
         let currUserId: String = Auth.auth().currentUser?.uid ?? "no-id"
         print("Fetching flashcard sets for user: (\(currUserId))...")
         
-        flashcardSets.removeAll()
+        self.flashcardSets.removeAll()
+        self.trash.removeAll()
         let db = Firestore.firestore()
         let ref = db.collection("flashcards").whereField("creatorId", isEqualTo: currUserId)
         
@@ -41,7 +43,6 @@ class DataStoreModel: ObservableObject {
             }
             
             print("Successfully obtained snapshot")
-            var fcSets: [FlashcardSet] = []
             if let snapshot = snapshot {
                 for document in snapshot.documents {
                     let data = document.data()
@@ -53,18 +54,25 @@ class DataStoreModel: ObservableObject {
                                              answer: fc["answer"] as! String))
                     }
                     
-                    fcSets.append(FlashcardSet(flashcardId: id,
-                                               title: data["title"] as? String ?? "",
-                                               category: data["category"] as? String ?? "",
-                                               timestamp: data["timestamp"] as? Int ?? 0,
-                                               creatorId: data["creatorId"] as? String ?? "",
-                                               flashcardSet: fcs))
+                    let fcSet = FlashcardSet(flashcardId: id,
+                                             title: data["title"] as? String ?? "",
+                                             category: data["category"] as? String ?? "",
+                                             timestamp: data["timestamp"] as? Int ?? 0,
+                                             creatorId: data["creatorId"] as? String ?? "",
+                                             flashcardSet: fcs)
+                    
+                    // Add flashcard set to "trash" if "toBeDeleted" is defined & true
+                    if data["toBeDeleted"] as? Bool ?? false {
+                        self.trash.append(fcSet)
+                    } else {
+                        self.flashcardSets.append(fcSet)
+                    }
                     
                     print("Id: \(id), Data: \(data)")
                 }
             }
-            self.flashcardSets = fcSets
-            print(fcSets)
+            print("Flashcard Sets:", self.flashcardSets)
+            print("Trash:", self.trash)
         }
     }
     
@@ -83,6 +91,7 @@ class DataStoreModel: ObservableObject {
     func clearFlashcards() {
         print("Cleared flashcard sets...")
         flashcardSets.removeAll()
+        trash.removeAll()
     }
     
     static let sharedInstance = DataStoreModel()
