@@ -80,7 +80,7 @@ class AuthViewModel: ObservableObject {
         
         user?.reauthenticate(with: credential) { (result, error) in
             if let error = error {
-                print("Error:", error.localizedDescription) // Incorrect old password
+                print(error.localizedDescription) // Incorrect old password
                 self.isDoingTask = false
             } else {
                 user?.updatePassword(to: newPassword) { error in

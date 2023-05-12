@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import FirebaseFunctions
 
 class DataStoreModel: ObservableObject {
     // Flashcard code to make things simplier
@@ -26,6 +27,8 @@ class DataStoreModel: ObservableObject {
     
     @Published var flashcardSets: [FlashcardSet] = []
     @Published var trash: [FlashcardSet] = []
+    
+    private lazy var functions = Functions.functions()
     
     func fetchFlashcards() {
         let currUserId: String = Auth.auth().currentUser?.uid ?? "no-id"
@@ -76,16 +79,72 @@ class DataStoreModel: ObservableObject {
         }
     }
     
-    func createFlashcardSet() {
-        
+    func createFlashcardSet(title: String, category: String, flashcards: [Flashcard]) {
+        functions.httpsCallable("addFlashcardSet")
+            .call(["title": title, "category": category, "cards": flashcards]) { (result, error) in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    print("Successfully created flashcard set.")
+                    if let data = result?.data as? [String: Any] {
+                        let newFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
+                                                    title: data["title"] as? String ?? "",
+                                                    category: data["category"] as? String ?? "",
+                                                    timestamp: data["timestamp"] as? Int ?? 0,
+                                                    creatorId: data["creatorId"] as? String ?? "",
+                                                    flashcardSet: flashcards)
+                        self.flashcardSets.append(newFCSet)
+                    }
+                }
+            }
     }
     
-    func updateFlashcardSet() {
-        
+    func updateFlashcardSet(flashcardId: String, title: String, category: String, flashcards: [Flashcard]) {
+        functions.httpsCallable("updateFlashcardSet")
+            .call(["flashcardId": flashcardId, "title": title, "category": category,
+                   "cards": flashcards]) { (result, error) in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    print("Successfully updated flashcard set.")
+                    if let data = result?.data as? [String: Any] {
+                        let updFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
+                                                    title: data["title"] as? String ?? "",
+                                                    category: data["category"] as? String ?? "",
+                                                    timestamp: data["timestamp"] as? Int ?? 0,
+                                                    creatorId: data["creatorId"] as? String ?? "",
+                                                    flashcardSet: flashcards)
+                        if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
+                            self.flashcardSets.remove(at: index) // Remove old entry
+                        }
+                        self.flashcardSets.append(updFCSet)
+                    }
+                }
+            }
     }
 
-    func deleteFlashcardSet() {
-        
+    func deleteFlashcardSet(flashcardId: String) {
+        functions.httpsCallable("deleteFlashcardSet").call(["flashcardId": flashcardId]) { (result, error) in
+                if let error = error {
+                    print(error.localizedDescription)
+                } else {
+                    if let data = result?.data as? [String: Any] {
+                        let message = data["message"] as? String ?? ""
+                        print(message)
+                        if message == "The flashcardset was sent to the trash." {
+                            if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
+                                let trashedEntry = self.flashcardSets[index]
+                                self.flashcardSets.remove(at: index)
+                                self.trash.append(trashedEntry)
+                            }
+                        } else {
+                            if let index = self.trash.firstIndex(where: { $0.flashcardId == flashcardId }) {
+                                self.trash.remove(at: index)
+                            }
+                        }
+                    }
+                }
+            }
     }
     
     func clearFlashcards() {
