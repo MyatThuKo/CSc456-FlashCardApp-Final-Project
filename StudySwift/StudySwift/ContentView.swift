@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         switch authModel.state {
             case .signedIn: LandingScreenView()
-            case .signedOut: SignupScreenView(viewModel: SignUpViewModel(email: "", password: "", confirmPassword: ""))
+            case .signedOut: LoginScreenView(viewModel: LoginScreenViewModel(email: "", password: ""))
         }
     }
 }
