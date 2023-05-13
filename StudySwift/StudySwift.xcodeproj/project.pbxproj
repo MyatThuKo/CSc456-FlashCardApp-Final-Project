@@ -37,6 +37,11 @@
 		F5CFFB252A0857F200929542 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CFFB242A0857F200929542 /* AuthViewModel.swift */; };
 		F5CFFB262A0857F200929542 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CFFB242A0857F200929542 /* AuthViewModel.swift */; };
 		F5CFFB272A0857F200929542 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CFFB242A0857F200929542 /* AuthViewModel.swift */; };
+		E2FBEAE72A0F22F100C9AE88 /* FlashcardCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBEAE62A0F22F100C9AE88 /* FlashcardCardView.swift */; };
+		E2FBEAE92A0F23C300C9AE88 /* AddFlashcardScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBEAE82A0F23C300C9AE88 /* AddFlashcardScreenView.swift */; };
+		E2FBEAEB2A0F240000C9AE88 /* AddFlashcardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBEAEA2A0F240000C9AE88 /* AddFlashcardViewModel.swift */; };
+		E2FBEAEE2A0F2B8100C9AE88 /* FlashcardScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBEAED2A0F2B8100C9AE88 /* FlashcardScreenView.swift */; };
+		E2FBEAF02A0F2C1500C9AE88 /* FlashcardScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FBEAEF2A0F2C1500C9AE88 /* FlashcardScreenViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +89,11 @@
 		F5184E642A0D1EB5007008CA /* DataStoreModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStoreModel.swift; sourceTree = "<group>"; };
 		F5CFFB192A0841C400929542 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F5CFFB242A0857F200929542 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		E2FBEAE62A0F22F100C9AE88 /* FlashcardCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardCardView.swift; sourceTree = "<group>"; };
+		E2FBEAE82A0F23C300C9AE88 /* AddFlashcardScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFlashcardScreenView.swift; sourceTree = "<group>"; };
+		E2FBEAEA2A0F240000C9AE88 /* AddFlashcardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFlashcardViewModel.swift; sourceTree = "<group>"; };
+		E2FBEAED2A0F2B8100C9AE88 /* FlashcardScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardScreenView.swift; sourceTree = "<group>"; };
+		E2FBEAEF2A0F2C1500C9AE88 /* FlashcardScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardScreenViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +136,8 @@
 		E20759F02A004CC200B66FD5 /* Landing Screen */ = {
 			isa = PBXGroup;
 			children = (
+				E2FBEAF12A0F326A00C9AE88 /* Flashcard Screen */,
+				E2FBEAEC2A0F2B5100C9AE88 /* AddFlashcardScreen */,
 				E20759F72A0051B200B66FD5 /* Home Screen */,
 				E20759EF2A004CBB00B66FD5 /* Profile Screen */,
 				E20759EB2A004CA100B66FD5 /* LandingScreenView.swift */,
@@ -147,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				E20759F82A0051DA00B66FD5 /* RoundedButtonView.swift */,
+				E2FBEAE62A0F22F100C9AE88 /* FlashcardCardView.swift */,
 			);
 			path = "Customized Views";
 			sourceTree = "<group>";
@@ -257,6 +270,24 @@
 				F5184E642A0D1EB5007008CA /* DataStoreModel.swift */,
 			);
 			path = "Data Models";
+			sourceTree = "<group>";
+		};
+		E2FBEAEC2A0F2B5100C9AE88 /* AddFlashcardScreen */ = {
+			isa = PBXGroup;
+			children = (
+				E2FBEAE82A0F23C300C9AE88 /* AddFlashcardScreenView.swift */,
+				E2FBEAEA2A0F240000C9AE88 /* AddFlashcardViewModel.swift */,
+			);
+			path = AddFlashcardScreen;
+			sourceTree = "<group>";
+		};
+		E2FBEAF12A0F326A00C9AE88 /* Flashcard Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E2FBEAED2A0F2B8100C9AE88 /* FlashcardScreenView.swift */,
+				E2FBEAEF2A0F2C1500C9AE88 /* FlashcardScreenViewModel.swift */,
+			);
+			path = "Flashcard Screen";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -406,9 +437,11 @@
 				E20759F92A0051DA00B66FD5 /* RoundedButtonView.swift in Sources */,
 				E20759EA2A004C7C00B66FD5 /* ProfileScreenViewModel.swift in Sources */,
 				E29D202C29FDBB6400E67F2C /* LoginScreenViewModel.swift in Sources */,
+				E2FBEAEE2A0F2B8100C9AE88 /* FlashcardScreenView.swift in Sources */,
 				E20759F42A004FED00B66FD5 /* HomeScreenView.swift in Sources */,
 				E29D203229FDED8400E67F2C /* ResetPasswordScreenViewModel.swift in Sources */,
 				E2B26F9B29F84EE700B7D984 /* SignupScreenView.swift in Sources */,
+				E2FBEAE92A0F23C300C9AE88 /* AddFlashcardScreenView.swift in Sources */,
 				E240F01329E7AA47007FC96C /* ContentView.swift in Sources */,
 				E20759EC2A004CA100B66FD5 /* LandingScreenView.swift in Sources */,
 				E20759F22A004FDE00B66FD5 /* HomeScreenViewModel.swift in Sources */,
@@ -417,6 +450,9 @@
 				F5184E652A0D1EB5007008CA /* DataStoreModel.swift in Sources */,
 				E20759E62A004C5600B66FD5 /* ProfileScreenView.swift in Sources */,
 				E240F01129E7AA47007FC96C /* StudySwiftApp.swift in Sources */,
+				E2FBEAF02A0F2C1500C9AE88 /* FlashcardScreenViewModel.swift in Sources */,
+				E2FBEAE72A0F22F100C9AE88 /* FlashcardCardView.swift in Sources */,
+				E2FBEAEB2A0F240000C9AE88 /* AddFlashcardViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

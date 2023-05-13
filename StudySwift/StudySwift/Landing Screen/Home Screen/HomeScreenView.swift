@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct HomeScreenView: View {
+    @StateObject var viewModel = AddFlashcardViewModel()
+    @State private var isShowingAddFlashcardSheet = false
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -16,13 +19,29 @@ struct HomeScreenView: View {
                     .scaledToFit()
                     .padding()
                 
-                Button {
-                    // add flashcard
-                } label: {
-                    RoundedButtonView(title: "Add flashcard")
+                ScrollView {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 16)], spacing: 16) {
+                        ForEach(Array(viewModel.flashcards.keys).sorted(), id: \.self) { category in
+                            if let flashcards = viewModel.flashcards[category], !flashcards.isEmpty {
+                                NavigationLink(destination: FlashcardScreenView(viewModel: FlashcardScreenViewModel(flashcards: flashcards))) {
+                                    FlashcardCardView(title: category)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
                 }
                 
                 Spacer()
+                
+                Button(action: {
+                    isShowingAddFlashcardSheet = true
+                }) {
+                    RoundedButtonView(title: "Add Flashcard")
+                }
+                .sheet(isPresented: $isShowingAddFlashcardSheet) {
+                    AddFlashcardScreenView(viewModel: viewModel)
+                }
             }
             .background(Color("inAppBGColor"))
             .navigationBarBackButtonHidden(true)
