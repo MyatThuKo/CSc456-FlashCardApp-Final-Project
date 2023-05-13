@@ -11,8 +11,7 @@ import SwiftUI
 struct StudySwiftApp: App {
     var body: some Scene {
         WindowGroup {
-//            SignupScreenView(viewModel: SignUpViewModel(email: "", password: "", confirmPassword: ""))
-            HomeScreenView()
+            SignupScreenView(viewModel: SignUpViewModel(email: "", password: "", confirmPassword: ""))
                 .preferredColorScheme(.dark)
         }
     }
