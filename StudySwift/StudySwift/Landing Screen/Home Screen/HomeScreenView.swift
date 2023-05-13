@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomeScreenView: View {
+    @EnvironmentObject var dataStoreModel: DataStoreModel
     @StateObject var viewModel = AddFlashcardViewModel()
     @State private var isShowingAddFlashcardSheet = false
     
@@ -21,9 +22,9 @@ struct HomeScreenView: View {
                 
                 ScrollView {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 16)], spacing: 16) {
-                        ForEach(Array(viewModel.flashcards.keys).sorted(), id: \.self) { category in
-                            if let flashcards = viewModel.flashcards[category], !flashcards.isEmpty {
-                                NavigationLink(destination: FlashcardScreenView(viewModel: FlashcardScreenViewModel(flashcards: flashcards))) {
+                        ForEach(Array(dataStoreModel.flashcardSets.keys).sorted(), id: \.self) { category in
+                            if let flashcards = dataStoreModel.flashcardSets[category], !flashcards.cards.isEmpty {
+                                NavigationLink(destination: FlashcardScreenView(viewModel: FlashcardScreenViewModel(flashcards: flashcards.cards))) {
                                     FlashcardCardView(title: category)
                                 }
                             }

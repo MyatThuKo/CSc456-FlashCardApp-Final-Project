@@ -1,8 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    // Allow auth user to view their own user document
+    match /users/{uid} {
+    	allow read: if request.auth.uid == uid;
+    }
+    // Flashcards can only be accessed by user who created it
+    //  - Ref: https://firebase.google.com/docs/firestore/security/rules-conditions#data_validation
+    match /flashcards/{flashcardId} {
+    	allow read: if request.auth.uid == resource.data.creatorId;
     }
   }
 }

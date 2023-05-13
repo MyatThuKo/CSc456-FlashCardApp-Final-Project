@@ -9,15 +9,15 @@ import Foundation
 import SwiftUI
 
 class FlashcardScreenViewModel: ObservableObject {
-    @Published var flashcards: [AddFlashcardViewModel.Flashcard]
+    @Published var flashcards: [DataStoreModel.Flashcard]
     @Published var currentIndex = 0
     @Published var isShowingAnswer = false
     
-    init(flashcards: [AddFlashcardViewModel.Flashcard]) {
+    init(flashcards: [DataStoreModel.Flashcard]) {
         self.flashcards = flashcards
     }
-    
-    var currentFlashcard: AddFlashcardViewModel.Flashcard {
+
+    var currentFlashcard: DataStoreModel.Flashcard {
         flashcards[currentIndex]
     }
     
