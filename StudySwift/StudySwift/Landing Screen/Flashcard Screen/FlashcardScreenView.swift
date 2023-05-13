@@ -15,10 +15,14 @@ struct FlashcardScreenView: View {
         VStack {
             Spacer()
             
+            Text(viewModel.isShowingAnswer ? "Answer" : "Question")
+                .foregroundColor(.white)
+                .font(.largeTitle)
+            
             Button {
                 viewModel.flipFlashcard()
             } label: {
-                FlashcardCardView(title: viewModel.currentFlashcard.category, text: viewModel.isShowingAnswer ? viewModel.currentFlashcard.answer : viewModel.currentFlashcard.question)
+                FlashcardCardView(title: viewModel.isShowingAnswer ? viewModel.currentFlashcard.answer : viewModel.currentFlashcard.question)
             }
             
             Spacer()
