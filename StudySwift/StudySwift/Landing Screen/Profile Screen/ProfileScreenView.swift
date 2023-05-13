@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ProfileScreenView: View {
 
+    @EnvironmentObject var authModel: AuthViewModel
+    
     @ObservedObject var viewModel: ProfileScreenViewModel
     @State private var errorMessage: String = ""
     @State private var isLogout: Bool = false
@@ -58,15 +60,17 @@ struct ProfileScreenView: View {
                         errorMessage = "Passwords do not match! Please try again."
                     } else {
                         isPasswordValid = true
-                        viewModel.resetPassword()
+                        // viewModel.resetPassword()
+                        authModel.updatePassword(oldPassword: viewModel.oldPassword, newPassword: viewModel.newPassword)
                     }
                 } label: {
-                    RoundedButtonView(title: "Reset password")
+                    RoundedButtonView(title: "Update password")
                 }
                 .padding()
 
                 Button {
-                    isLogout = true
+                    // isLogout = true
+                    authModel.signOut()
                 } label: {
                     Text("Logout")
                 }
