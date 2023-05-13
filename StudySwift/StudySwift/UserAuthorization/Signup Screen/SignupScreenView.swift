@@ -68,15 +68,7 @@ struct SignupScreenView: View {
                         viewModel.signUp()
                     }
                 } label: {
-                    Text("Sign up")
-                        .foregroundColor(.black)
-                        .frame(width: 150, height: 35)
-                        .padding(.vertical)
-                        .padding(.horizontal, 24)
-                        .background(
-                            Color("buttonColor")
-                        )
-                        .clipShape(Capsule(style: .continuous))
+                    RoundedButtonView(title: "Sign up")
                 }
                 
                 Button {

@@ -29,6 +29,7 @@ struct ResetPasswordScreenView: View {
                         .textInputAutocapitalization(.never)
                     
                     Text(errorMessage)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal)
                         .foregroundColor(showResetEmailSentAlert ? .green : .red)
                 }
@@ -46,15 +47,7 @@ struct ResetPasswordScreenView: View {
                         showResetEmailSentAlert = false
                     }
                 } label: {
-                    Text("Reset password")
-                        .foregroundColor(.black)
-                        .frame(width: 150, height: 35)
-                        .padding(.vertical)
-                        .padding(.horizontal, 24)
-                        .background(
-                            Color("buttonColor")
-                        )
-                        .clipShape(Capsule(style: .continuous))
+                    RoundedButtonView(title: "Reset password")
                 }
                 
                 VStack(spacing: 15) {

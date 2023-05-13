@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct LoginScreenView: View {
-    
+
     @ObservedObject var viewModel: LoginScreenViewModel
-    @State private var isUserValid: Bool = true
+    @State private var isUserValid: Bool = false
+    @State private var showErrorMessage: Bool = false
     @State private var errorMessage: String = ""
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -20,47 +21,41 @@ struct LoginScreenView: View {
                     .resizable()
                     .scaledToFit()
                     .padding()
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .leading, spacing: 25) {
                     TextField("Email", text: $viewModel.email)
                         .textFieldStyle(RoundedTextFieldStyle())
                         .textInputAutocapitalization(.never)
-                    
+
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedTextFieldStyle())
-                    
-                    if !isUserValid {
+
+                    if showErrorMessage {
                         Text(errorMessage)
                             .padding(.horizontal)
                             .foregroundColor(.red)
                     }
                 }
                 .padding(.horizontal, 16)
-                
+
                 Spacer()
-                
+
                 Button {
                     if viewModel.isUserValid(){
                         isUserValid = true
+                        showErrorMessage = false
                         viewModel.login()
                     } else {
                         isUserValid = false
+                        showErrorMessage = true
                         errorMessage = "Invalid email or password. Please try again."
                     }
                 } label: {
-                    Text("Login")
-                        .foregroundColor(.black)
-                        .frame(width: 150, height: 35)
-                        .padding(.vertical)
-                        .padding(.horizontal, 24)
-                        .background(
-                            Color("buttonColor")
-                        )
-                        .clipShape(Capsule(style: .continuous))
+                    RoundedButtonView(title: "Login")
                 }
-                
+
                 VStack(spacing: 15) {
                     Button {
                         print("Navigate to the sign up screen")
@@ -71,7 +66,7 @@ struct LoginScreenView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    
+
                     Button {
                         print("Navigate to the reset password screen")
                     } label: {
@@ -87,6 +82,9 @@ struct LoginScreenView: View {
             .padding(.vertical)
             .background(Color("mainBGColor"))
         }
+        .fullScreenCover(isPresented: $isUserValid, content: {
+            LandingScreenView()
+        })
         .navigationBarBackButtonHidden(true)
     }
 }

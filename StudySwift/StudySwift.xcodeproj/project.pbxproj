@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E20759E62A004C5600B66FD5 /* ProfileScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759E52A004C5600B66FD5 /* ProfileScreenView.swift */; };
+		E20759EA2A004C7C00B66FD5 /* ProfileScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759E92A004C7C00B66FD5 /* ProfileScreenViewModel.swift */; };
+		E20759EC2A004CA100B66FD5 /* LandingScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759EB2A004CA100B66FD5 /* LandingScreenView.swift */; };
+		E20759EE2A004CB300B66FD5 /* LandingScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759ED2A004CB300B66FD5 /* LandingScreenViewModel.swift */; };
+		E20759F22A004FDE00B66FD5 /* HomeScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759F12A004FDE00B66FD5 /* HomeScreenViewModel.swift */; };
+		E20759F42A004FED00B66FD5 /* HomeScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759F32A004FED00B66FD5 /* HomeScreenView.swift */; };
+		E20759F92A0051DA00B66FD5 /* RoundedButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20759F82A0051DA00B66FD5 /* RoundedButtonView.swift */; };
 		E240F01129E7AA47007FC96C /* StudySwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E240F01029E7AA47007FC96C /* StudySwiftApp.swift */; };
 		E240F01329E7AA47007FC96C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E240F01229E7AA47007FC96C /* ContentView.swift */; };
 		E240F01529E7AA49007FC96C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E240F01429E7AA49007FC96C /* Assets.xcassets */; };
@@ -40,6 +47,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E20759E52A004C5600B66FD5 /* ProfileScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreenView.swift; sourceTree = "<group>"; };
+		E20759E92A004C7C00B66FD5 /* ProfileScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreenViewModel.swift; sourceTree = "<group>"; };
+		E20759EB2A004CA100B66FD5 /* LandingScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingScreenView.swift; sourceTree = "<group>"; };
+		E20759ED2A004CB300B66FD5 /* LandingScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandingScreenViewModel.swift; sourceTree = "<group>"; };
+		E20759F12A004FDE00B66FD5 /* HomeScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewModel.swift; sourceTree = "<group>"; };
+		E20759F32A004FED00B66FD5 /* HomeScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenView.swift; sourceTree = "<group>"; };
+		E20759F82A0051DA00B66FD5 /* RoundedButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedButtonView.swift; sourceTree = "<group>"; };
 		E240F00D29E7AA47007FC96C /* StudySwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StudySwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E240F01029E7AA47007FC96C /* StudySwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySwiftApp.swift; sourceTree = "<group>"; };
 		E240F01229E7AA47007FC96C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -84,6 +98,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E20759EF2A004CBB00B66FD5 /* Profile Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E20759E52A004C5600B66FD5 /* ProfileScreenView.swift */,
+				E20759E92A004C7C00B66FD5 /* ProfileScreenViewModel.swift */,
+			);
+			path = "Profile Screen";
+			sourceTree = "<group>";
+		};
+		E20759F02A004CC200B66FD5 /* Landing Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E20759F72A0051B200B66FD5 /* Home Screen */,
+				E20759EF2A004CBB00B66FD5 /* Profile Screen */,
+				E20759EB2A004CA100B66FD5 /* LandingScreenView.swift */,
+				E20759ED2A004CB300B66FD5 /* LandingScreenViewModel.swift */,
+			);
+			path = "Landing Screen";
+			sourceTree = "<group>";
+		};
+		E20759F72A0051B200B66FD5 /* Home Screen */ = {
+			isa = PBXGroup;
+			children = (
+				E20759F12A004FDE00B66FD5 /* HomeScreenViewModel.swift */,
+				E20759F32A004FED00B66FD5 /* HomeScreenView.swift */,
+			);
+			path = "Home Screen";
+			sourceTree = "<group>";
+		};
+		E20759FA2A0051EB00B66FD5 /* Customized Views */ = {
+			isa = PBXGroup;
+			children = (
+				E20759F82A0051DA00B66FD5 /* RoundedButtonView.swift */,
+			);
+			path = "Customized Views";
+			sourceTree = "<group>";
+		};
 		E240F00429E7AA47007FC96C = {
 			isa = PBXGroup;
 			children = (
@@ -109,6 +160,8 @@
 			children = (
 				E240F01029E7AA47007FC96C /* StudySwiftApp.swift */,
 				E240F01229E7AA47007FC96C /* ContentView.swift */,
+				E20759F02A004CC200B66FD5 /* Landing Screen */,
+				E20759FA2A0051EB00B66FD5 /* Customized Views */,
 				E2B26F9E29F84F5200B7D984 /* UserAuthorization */,
 				E240F01429E7AA49007FC96C /* Assets.xcassets */,
 				E240F01629E7AA49007FC96C /* StudySwift.entitlements */,
@@ -310,12 +363,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				E29D202829FDB92000E67F2C /* LoginScreenView.swift in Sources */,
+				E20759EE2A004CB300B66FD5 /* LandingScreenViewModel.swift in Sources */,
 				E2B26F9D29F84EF300B7D984 /* SignupScreenViewModel.swift in Sources */,
+				E20759F92A0051DA00B66FD5 /* RoundedButtonView.swift in Sources */,
+				E20759EA2A004C7C00B66FD5 /* ProfileScreenViewModel.swift in Sources */,
 				E29D202C29FDBB6400E67F2C /* LoginScreenViewModel.swift in Sources */,
+				E20759F42A004FED00B66FD5 /* HomeScreenView.swift in Sources */,
 				E29D203229FDED8400E67F2C /* ResetPasswordScreenViewModel.swift in Sources */,
 				E2B26F9B29F84EE700B7D984 /* SignupScreenView.swift in Sources */,
 				E240F01329E7AA47007FC96C /* ContentView.swift in Sources */,
+				E20759EC2A004CA100B66FD5 /* LandingScreenView.swift in Sources */,
+				E20759F22A004FDE00B66FD5 /* HomeScreenViewModel.swift in Sources */,
 				E29D203029FDED5700E67F2C /* ResetPasswordScreenView.swift in Sources */,
+				E20759E62A004C5600B66FD5 /* ProfileScreenView.swift in Sources */,
 				E240F01129E7AA47007FC96C /* StudySwiftApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
