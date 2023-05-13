@@ -6,13 +6,26 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct StudySwiftApp: App {
+    @StateObject var authModel = AuthViewModel.sharedInstance
+    @StateObject var dataStoreModel = DataStoreModel.sharedInstance
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
+        // WindowGroup {
+        //     SignupScreenView(viewModel: SignUpViewModel(email: "", password: "", confirmPassword: ""))
+        //         .preferredColorScheme(.dark)
+        // }
         WindowGroup {
-            SignupScreenView(viewModel: SignUpViewModel(email: "", password: "", confirmPassword: ""))
-                .preferredColorScheme(.dark)
+            ContentView()
+                .environmentObject(authModel)
+                .environmentObject(dataStoreModel)
         }
     }
 }

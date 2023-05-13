@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct SignupScreenView: View {
+    
+    @EnvironmentObject var authModel: AuthViewModel
+    
     @ObservedObject var viewModel: SignUpViewModel
     @State private var isPasswordValid: Bool = true
     @State private var isEmailValid: Bool = true
@@ -65,7 +68,8 @@ struct SignupScreenView: View {
                     } else {
                         isEmailValid = true
                         isPasswordValid = true
-                        viewModel.signUp()
+                        // viewModel.signUp()
+                        authModel.signUp(email: viewModel.email, password: viewModel.password)
                     }
                 } label: {
                     RoundedButtonView(title: "Sign up")

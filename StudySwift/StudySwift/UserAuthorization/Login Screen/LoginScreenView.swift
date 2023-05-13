@@ -9,6 +9,8 @@ import SwiftUI
 
 struct LoginScreenView: View {
 
+    @EnvironmentObject var authModel: AuthViewModel
+    
     @ObservedObject var viewModel: LoginScreenViewModel
     @State private var isUserValid: Bool = false
     @State private var showErrorMessage: Bool = false
@@ -43,15 +45,17 @@ struct LoginScreenView: View {
                 Spacer()
 
                 Button {
-                    if viewModel.isUserValid(){
-                        isUserValid = true
-                        showErrorMessage = false
-                        viewModel.login()
-                    } else {
-                        isUserValid = false
-                        showErrorMessage = true
-                        errorMessage = "Invalid email or password. Please try again."
-                    }
+                    authModel.signIn(email: viewModel.email, password: viewModel.password)
+                    
+                //    if viewModel.isUserValid(){
+                //        isUserValid = true
+                //        showErrorMessage = false
+                //        viewModel.login()
+                //    } else {
+                //        isUserValid = false
+                //        showErrorMessage = true
+                //        errorMessage = "Invalid email or password. Please try again."
+                //    }
                 } label: {
                     RoundedButtonView(title: "Login")
                 }
