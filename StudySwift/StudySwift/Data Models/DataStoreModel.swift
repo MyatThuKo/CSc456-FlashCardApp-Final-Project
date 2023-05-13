@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import FirebaseFirestore
 import FirebaseFunctions
 
 class DataStoreModel: ObservableObject {
@@ -18,15 +19,18 @@ class DataStoreModel: ObservableObject {
     
     struct FlashcardSet: Codable, Hashable {
         let flashcardId: String
-        let title: String
+//        let title: String
         let category: String
-        let timestamp: Int
+//        let timestamp: Int
         let creatorId: String
-        let flashcardSet: [Flashcard]
+//        let flashcardSet: [Flashcard]
+        var cards: [Flashcard]
     }
     
-    @Published var flashcardSets: [FlashcardSet] = []
-    @Published var trash: [FlashcardSet] = []
+//    @Published var flashcardSets: [FlashcardSet] = []
+//    @Published var trash: [FlashcardSet] = []
+    @Published var flashcardSets: [String: FlashcardSet] = [:]
+    @Published var trash: [String: FlashcardSet] = [:]
     
     private lazy var functions = Functions.functions()
     
@@ -57,18 +61,19 @@ class DataStoreModel: ObservableObject {
                                              answer: fc["answer"] as! String))
                     }
                     
+                    let category = data["category"] as? String ?? ""
                     let fcSet = FlashcardSet(flashcardId: id,
-                                             title: data["title"] as? String ?? "",
-                                             category: data["category"] as? String ?? "",
-                                             timestamp: data["timestamp"] as? Int ?? 0,
+//                                             title: data["title"] as? String ?? "",
+                                             category: category,
+//                                             timestamp: data["timestamp"] as? Int ?? 0,
                                              creatorId: data["creatorId"] as? String ?? "",
-                                             flashcardSet: fcs)
+                                             cards: fcs)
                     
                     // Add flashcard set to "trash" if "toBeDeleted" is defined & true
                     if data["toBeDeleted"] as? Bool ?? false {
-                        self.trash.append(fcSet)
+                        self.trash[category] = fcSet
                     } else {
-                        self.flashcardSets.append(fcSet)
+                        self.flashcardSets[category] = fcSet
                     }
                     
                     print("Id: \(id), Data: \(data)")
@@ -79,73 +84,99 @@ class DataStoreModel: ObservableObject {
         }
     }
     
-    func createFlashcardSet(title: String, category: String, flashcards: [Flashcard]) {
-        functions.httpsCallable("addFlashcardSet")
-            .call(["title": title, "category": category, "cards": flashcards]) { (result, error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    print("Successfully created flashcard set.")
-                    if let data = result?.data as? [String: Any] {
-                        let newFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
-                                                    title: data["title"] as? String ?? "",
-                                                    category: data["category"] as? String ?? "",
-                                                    timestamp: data["timestamp"] as? Int ?? 0,
-                                                    creatorId: data["creatorId"] as? String ?? "",
-                                                    flashcardSet: flashcards)
-                        self.flashcardSets.append(newFCSet)
+    func addFlashcardToCategory(category: String, question: String, answer: String) {
+        functions.httpsCallable("addFCToCategory")
+            .call(["category": category, "question": question, "answer": answer]) { (result, error) in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                print("Successfully added flashcard to category.")
+                if let data = result?.data as? [String: Any] {
+                    if var oldFCSet = self.flashcardSets[category] {
+                        // Set already exists
+                        oldFCSet.cards.append(Flashcard(question: question, answer: answer))
+                        self.flashcardSets[category] = oldFCSet
+                    } else {
+                        // Created new flashcard set
+                        let fcSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
+                                                 category: category,
+                                                 creatorId: data["creatorId"] as? String ?? "",
+                                                 cards: [Flashcard(question: question, answer: answer)])
+                        self.flashcardSets[category] = fcSet
                     }
                 }
             }
+            
+        }
     }
     
-    func updateFlashcardSet(flashcardId: String, title: String, category: String, flashcards: [Flashcard]) {
-        functions.httpsCallable("updateFlashcardSet")
-            .call(["flashcardId": flashcardId, "title": title, "category": category,
-                   "cards": flashcards]) { (result, error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    print("Successfully updated flashcard set.")
-                    if let data = result?.data as? [String: Any] {
-                        let updFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
-                                                    title: data["title"] as? String ?? "",
-                                                    category: data["category"] as? String ?? "",
-                                                    timestamp: data["timestamp"] as? Int ?? 0,
-                                                    creatorId: data["creatorId"] as? String ?? "",
-                                                    flashcardSet: flashcards)
-                        if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
-                            self.flashcardSets.remove(at: index) // Remove old entry
-                        }
-                        self.flashcardSets.append(updFCSet)
-                    }
-                }
-            }
-    }
-
-    func deleteFlashcardSet(flashcardId: String) {
-        functions.httpsCallable("deleteFlashcardSet").call(["flashcardId": flashcardId]) { (result, error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                } else {
-                    if let data = result?.data as? [String: Any] {
-                        let message = data["message"] as? String ?? ""
-                        print(message)
-                        if message == "The flashcardset was sent to the trash." {
-                            if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
-                                let trashedEntry = self.flashcardSets[index]
-                                self.flashcardSets.remove(at: index)
-                                self.trash.append(trashedEntry)
-                            }
-                        } else {
-                            if let index = self.trash.firstIndex(where: { $0.flashcardId == flashcardId }) {
-                                self.trash.remove(at: index)
-                            }
-                        }
-                    }
-                }
-            }
-    }
+//    func createFlashcardSet(title: String, category: String, flashcards: [Flashcard]) {
+//        functions.httpsCallable("addFlashcardSet")
+//            .call(["title": title, "category": category, "cards": flashcards]) { (result, error) in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                } else {
+//                    print("Successfully created flashcard set.")
+//                    if let data = result?.data as? [String: Any] {
+//                        let newFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
+//                                                    title: data["title"] as? String ?? "",
+//                                                    category: data["category"] as? String ?? "",
+//                                                    timestamp: data["timestamp"] as? Int ?? 0,
+//                                                    creatorId: data["creatorId"] as? String ?? "",
+//                                                    flashcardSet: flashcards)
+//                        self.flashcardSets.append(newFCSet)
+//                    }
+//                }
+//            }
+//    }
+//
+//    func updateFlashcardSet(flashcardId: String, title: String, category: String, flashcards: [Flashcard]) {
+//        functions.httpsCallable("updateFlashcardSet")
+//            .call(["flashcardId": flashcardId, "title": title, "category": category,
+//                   "cards": flashcards]) { (result, error) in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                } else {
+//                    print("Successfully updated flashcard set.")
+//                    if let data = result?.data as? [String: Any] {
+//                        let updFCSet = FlashcardSet(flashcardId: data["flashcardId"] as? String ?? "",
+//                                                    title: data["title"] as? String ?? "",
+//                                                    category: data["category"] as? String ?? "",
+//                                                    timestamp: data["timestamp"] as? Int ?? 0,
+//                                                    creatorId: data["creatorId"] as? String ?? "",
+//                                                    flashcardSet: flashcards)
+//                        if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
+//                            self.flashcardSets.remove(at: index) // Remove old entry
+//                        }
+//                        self.flashcardSets.append(updFCSet)
+//                    }
+//                }
+//            }
+//    }
+//
+//    func deleteFlashcardSet(flashcardId: String) {
+//        functions.httpsCallable("deleteFlashcardSet").call(["flashcardId": flashcardId]) { (result, error) in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                } else {
+//                    if let data = result?.data as? [String: Any] {
+//                        let message = data["message"] as? String ?? ""
+//                        print(message)
+//                        if message == "The flashcardset was sent to the trash." {
+//                            if let index = self.flashcardSets.firstIndex(where: { $0.flashcardId == flashcardId }) {
+//                                let trashedEntry = self.flashcardSets[index]
+//                                self.flashcardSets.remove(at: index)
+//                                self.trash.append(trashedEntry)
+//                            }
+//                        } else {
+//                            if let index = self.trash.firstIndex(where: { $0.flashcardId == flashcardId }) {
+//                                self.trash.remove(at: index)
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//    }
     
     func clearFlashcards() {
         print("Cleared flashcard sets...")
