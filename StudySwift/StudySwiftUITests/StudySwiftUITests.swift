@@ -22,12 +22,77 @@ final class StudySwiftUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
+    func testSignUp() throws {
         // UI tests must launch the application that they test.
         let app = XCUIApplication()
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        
+        let emailField = app.textFields["Email"]
+        XCTAssertTrue(emailField.exists)
+        emailField.tap()
+        emailField.typeText("example@domain.com")
+        
+        let passwordField = app.secureTextFields["Password"]
+        XCTAssertTrue(passwordField.exists)
+        passwordField.tap()
+        passwordField.typeText("P@ssword12356")
+        
+        let confirmField = app.secureTextFields["Confirm Password"]
+        XCTAssertTrue(confirmField.exists)
+        confirmField.tap()
+        confirmField.typeText("P@ssword12356")
+        
+        
+        let button = app.buttons["Sign up"]
+        XCTAssertTrue(button.exists)
+        button.tap()
+    }
+    
+    func testLogin() throws {
+        let app = XCUIApplication()
+        app.launch()
+        
+        let loginLink = app.buttons["Already a user? Login here."]
+        XCTAssertTrue(loginLink.exists)
+        loginLink.tap()
+        
+        let emailField = app.textFields["Email"]
+        XCTAssertTrue(emailField.exists)
+        emailField.tap()
+        emailField.typeText("example@domain.com")
+        
+        let passwordField = app.secureTextFields["Password"]
+        XCTAssertTrue(passwordField.exists)
+        passwordField.tap()
+        passwordField.typeText("P@ssword12356")
+        
+        let button = app.buttons["Login"]
+        XCTAssertTrue(button.exists)
+        button.tap()
+        
+    }
+    
+    func testResetPassword() throws {
+        let app = XCUIApplication()
+        app.launch()
+        
+        let loginLink = app.buttons["Already a user? Login here."]
+        XCTAssertTrue(loginLink.exists)
+        loginLink.tap()
+        
+        let resetPasswordLink = app.buttons["Forgot password? Reset here."]
+        XCTAssertTrue(resetPasswordLink.exists)
+        resetPasswordLink.tap()
+        
+        let emailField = app.textFields["Email"]
+        XCTAssertTrue(emailField.exists)
+        emailField.tap()
+        emailField.typeText("example@domain.com")
+        
+        let button = app.buttons["Reset password"]
+        XCTAssertTrue(button.exists)
+        button.tap()
+        
     }
 
     func testLaunchPerformance() throws {
