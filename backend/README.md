@@ -9,6 +9,8 @@ To install dependencies needed (for testing locally or making functions locally 
 In order to be able to deploy, you need to initialize the `backend` folder as a Firebase project. To do so, you first need to install `firebase-tools` globally (`npm i -g firebase-tools`).
 
 After doing so, we now re-initialize the `backend` folder as a Firebase Project:
+> **IMPORTANT:** Prior to following these steps, make sure you've logged in by running `firebase login`.
+> Full reference on installing the CLI and logging in can be found [here](https://firebase.google.com/docs/cli).
 
 1. In the `backend` folder, run `firebase init`.
 2. When asked to proceed, type `Y` and hit `enter`.
