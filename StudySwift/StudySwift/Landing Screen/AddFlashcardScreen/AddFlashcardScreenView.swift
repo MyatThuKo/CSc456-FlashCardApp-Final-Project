@@ -9,7 +9,6 @@ import SwiftUI
 
 struct AddFlashcardScreenView: View {
     @EnvironmentObject var dataStoreModel: DataStoreModel
-    
     @ObservedObject var viewModel: AddFlashcardViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var question: String = ""
@@ -35,14 +34,11 @@ struct AddFlashcardScreenView: View {
                 
                 Button {
                     if !question.isEmpty && !answer.isEmpty && !category.isEmpty {
-//                        viewModel.addFlashcard(question: question, answer: answer, category: category)
                         dataStoreModel.addFlashcardToCategory(category: category, question: question, answer: answer)
                         question = ""
                         answer = ""
                         category = ""
                         presentationMode.wrappedValue.dismiss()
-//                        print("Flashcards: \(viewModel.flashcards.count)")
-//                        print("Flashcard: \(viewModel.flashcards.values.count)")
                         print("Flashcards: \(dataStoreModel.flashcardSets.count)")
                         print("FLashcard: \(dataStoreModel.flashcardSets.values.count)")
                     } else {
