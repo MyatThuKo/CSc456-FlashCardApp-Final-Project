@@ -68,6 +68,62 @@ const formatFlashcardSetData = (data, userId) => {
 };
 
 /*
+  Expecetd input:
+    - "category" <string>
+    - "question" <string>
+    - "answer" <string>
+*/
+exports.addFCToCategory = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    const errMsg = `You must be authenticated to add a flashcard to a category.`;
+    throw new functions.https.HttpsError("unauthenticated", errMsg);
+  }
+  // Make sure required fields are provided
+  const requiredFields = ["category", "question", "answer"];
+  requiredFields.forEach((field) => {
+    if (!data[field]) {
+      const errMsg = `The "${field}" field must be provided.`;
+      throw new functions.https.HttpsError("invalid-argument", errMsg);
+    }
+  });
+
+  try {
+    const fcItem = {question: data["question"], answer: data["answer"]};
+    let newFCSet = {
+      category: data["category"],
+      creatorId: context.auth.uid,
+      cards: [fcItem],
+    };
+    const collRef = admin.firestore().collection("flashcards");
+    const docRef = collRef
+        .where("creatorId", "==", context.auth.uid)
+        .where("category", "==", data["category"])
+        .limit(1);
+    const resRef = await docRef.get().then(async (snapshot) => {
+      if (snapshot.docs.length === 0) {
+        // Create a doc since it doesn't exist
+        return admin.firestore().collection("flashcards").add(newFCSet);
+      } else {
+        // Update the doc since it exists
+        const docData = snapshot.docs[0].data();
+        const docId = snapshot.docs[0].id;
+        newFCSet = {...newFCSet, cards: [...docData.cards, fcItem]};
+        return collRef
+            .doc(docId)
+            .update({cards: newFCSet.cards})
+            .then(() => Promise.resolve({id: docId}));
+      }
+    });
+    // Return the flashcard set created to the client
+    return {...newFCSet, flashcardId: resRef.id};
+  } catch (err) {
+    // Re-throwing the error as an HttpsError so the client gets the
+    // error details
+    throw new functions.https.HttpsError("unknown", err.message, err);
+  }
+});
+
+/*
   Cloud Function to create a flashcard set as an authenticated user.
 
   Expected input:

@@ -16,12 +16,14 @@ const {
   updateFlashcardSet,
   deleteFlashcardSet,
   recoverFlashcardSet,
+  addFCToCategory,
 } = require("./src/controllers/flashcard");
 
 exports.addFlashcardSet = addFlashcardSet;
 exports.updateFlashcardSet = updateFlashcardSet;
 exports.deleteFlashcardSet = deleteFlashcardSet;
 exports.recoverFlashcardSet = recoverFlashcardSet;
+exports.addFCToCategory = addFCToCategory;
 
 
 const {newUserSignup} = require("./src/controllers/user");
