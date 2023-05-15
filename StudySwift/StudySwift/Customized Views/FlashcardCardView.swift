@@ -22,7 +22,7 @@ struct FlashcardCardView: View {
                     .font(.subheadline)
             }
         }
-        .frame(width: 150, height: 150)
+        .frame(minWidth: 150, minHeight: 150)
         .background(Color("flashcardColor"))
         .foregroundColor(.white)
         .cornerRadius(10)
