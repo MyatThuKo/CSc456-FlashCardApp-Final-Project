@@ -159,7 +159,6 @@ final class StudySwiftUITests: XCTestCase {
         
         testTextField(fieldName: "Email", exampleString: exampleEmail, secure: false)
         testButton(buttonName: "Reset password")
-        
     }
 
     func testLaunchPerformance() throws {

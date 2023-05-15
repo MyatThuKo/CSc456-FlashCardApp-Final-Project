@@ -10,5 +10,14 @@ service cloud.firestore {
     match /flashcards/{flashcardId} {
     	allow read: if request.auth.uid == resource.data.creatorId;
     }
+    // Allow auth user to view their own user document
+    match /users/{userId} {
+    	allow read: if request.auth.uid != null && request.auth.uid == userId;
+    }
+    // Flashcards can only be accessed by user who created it
+    //  - Ref: https://firebase.google.com/docs/firestore/security/rules-conditions#data_validation
+    match /flashcards/{flashcardId} {
+    	allow read: if request.auth.uid != null && resource.data.creatorId == request.auth.uid;
+    }
   }
 }
