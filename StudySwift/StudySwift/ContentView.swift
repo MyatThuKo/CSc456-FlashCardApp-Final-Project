@@ -8,19 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authModel: AuthViewModel
+    @EnvironmentObject var dataStoreModel: DataStoreModel
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        switch authModel.state {
+            case .signedIn: LandingScreenView()
+            case .signedOut: LoginScreenView(viewModel: LoginScreenViewModel(email: "", password: ""))
         }
-        .padding()
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(AuthViewModel.sharedInstance)
+            .environmentObject(DataStoreModel.sharedInstance)
     }
 }
